@@ -1,0 +1,276 @@
+{
+  "_note": "All analysis parameters. Values marked dev_select are chosen on the development set by fixed rules in run_pipeline.py; everything else is pre-specified and must not be changed after looking at test-set results.",
+  "fs_hz": 100.0,
+  "seed": 20261022,
+  "io": {
+    "sensors": [
+      "HE",
+      "LB",
+      "LF",
+      "RF"
+    ],
+    "raw_pattern": "{trial}_raw_data_{loc}.txt",
+    "meta_pattern": "{trial}_meta.json",
+    "trial_id_regex": "^(?P<cohort>[A-Za-z]+)_(?P<pid>\\d+)_(?P<trial>\\d+)$",
+    "column_candidates": {
+      "counter": [
+        "PacketCounter",
+        "packet_counter",
+        "Counter",
+        "counter",
+        "SampleTimeFine"
+      ],
+      "acc": [
+        [
+          "Acc_X",
+          "Acc_Y",
+          "Acc_Z"
+        ],
+        [
+          "AccX",
+          "AccY",
+          "AccZ"
+        ],
+        [
+          "acc_x",
+          "acc_y",
+          "acc_z"
+        ],
+        [
+          "ax",
+          "ay",
+          "az"
+        ]
+      ],
+      "gyr": [
+        [
+          "Gyr_X",
+          "Gyr_Y",
+          "Gyr_Z"
+        ],
+        [
+          "GyrX",
+          "GyrY",
+          "GyrZ"
+        ],
+        [
+          "gyr_x",
+          "gyr_y",
+          "gyr_z"
+        ],
+        [
+          "gx",
+          "gy",
+          "gz"
+        ]
+      ]
+    },
+    "positional_fallback": {
+      "counter": 0,
+      "acc": [
+        1,
+        2,
+        3
+      ],
+      "gyr": [
+        4,
+        5,
+        6
+      ]
+    },
+    "counter_wrap": 65536,
+    "acc_unit": "mps2",
+    "gyr_unit": "rads",
+    "meta_keys": {
+      "left_events": [
+        "leftGaitEvents",
+        "LeftFootEvents",
+        "leftFootEvents",
+        "left_foot_events",
+        "LeftGaitEvents"
+      ],
+      "right_events": [
+        "rightGaitEvents",
+        "RightFootEvents",
+        "rightFootEvents",
+        "right_foot_events",
+        "RightGaitEvents"
+      ],
+      "turn": [
+        "uturnBoundaries",
+        "UturnBoundaries",
+        "UTurnBoundaries",
+        "uturn_boundaries",
+        "TurnBoundaries"
+      ],
+      "participant": [
+        "subject",
+        "Subject",
+        "Participant",
+        "participant",
+        "SubjectID",
+        "PatientID"
+      ],
+      "visit": [
+        "session",
+        "Visit",
+        "visit",
+        "Session",
+        "VisitNumber"
+      ],
+      "sensor_type": [
+        "sensor",
+        "Sensor",
+        "Device",
+        "device",
+        "SensorType",
+        "sensor_type",
+        "IMU"
+      ],
+      "age": [
+        "age",
+        "Age"
+      ],
+      "cohort": [
+        "pathologyKey",
+        "Cohort",
+        "cohort",
+        "Pathology",
+        "pathology"
+      ],
+      "tug": [
+        "TUG",
+        "tug",
+        "TUG_s",
+        "TimedUpAndGo"
+      ],
+      "days": [
+        "daysSinceFirstSession"
+      ]
+    },
+    "event_pair_order": [
+      "TO",
+      "HS"
+    ],
+    "event_index_unit": "samples",
+    "exclude_trials": [
+      "RIL_12_1",
+      "RIL_12_2",
+      "RIL_12_3",
+      "RIL_12_4",
+      "RIL_12_5"
+    ],
+    "signal_source": "processed",
+    "processed_pattern": "{trial}_processed_data.txt"
+  },
+  "qc": {
+    "max_interp_gap_s": 0.05,
+    "sensor_ranges": {
+      "XSens": {
+        "acc_mps2": 160.0,
+        "gyr_dps": 2000.0
+      },
+      "Technoconcept": {
+        "acc_mps2": 58.84,
+        "gyr_dps": 500.0
+      },
+      "unknown": {
+        "acc_mps2": null,
+        "gyr_dps": null
+      }
+    },
+    "saturation_fraction_of_range": 0.98,
+    "min_static_s": 0.5
+  },
+  "detect": {
+    "band_hi_hz": 3.0,
+    "band_lo_candidates_hz": [
+      0.6,
+      0.8,
+      1.0,
+      1.2
+    ],
+    "band_lo_hz": "dev_select",
+    "filter_order": 3,
+    "prominence_floor_mps2": 0.12,
+    "prominence_k_sigma": 1.5,
+    "min_peak_distance_s": 0.3,
+    "window_pad_s": 1.0,
+    "gravity_lp_hz": 0.3,
+    "a0_axis": 0,
+    "lag_search_s": 0.4
+  },
+  "gate": {
+    "median_win_s": 0.15,
+    "min_dur_s": 0.3,
+    "pad_s": 0.2,
+    "threshold_candidates_dps": [
+      20,
+      30,
+      45,
+      60,
+      90
+    ],
+    "threshold_dps": "dev_select",
+    "random_reps": 200
+  },
+  "autocorr": {
+    "min_lag_s": 0.3,
+    "max_lag_s": 0.9
+  },
+  "metrics": {
+    "match_tol_s": 0.15,
+    "match_tol_sensitivity_s": [
+      0.1,
+      0.15,
+      0.2
+    ],
+    "min_ref_intervals": 3,
+    "halving_ratio": [
+      1.75,
+      2.25
+    ],
+    "doubling_ratio": [
+      0.375,
+      0.625
+    ],
+    "acceptable_loa_spm": null
+  },
+  "sim": {
+    "rotation_deg": [
+      5,
+      10,
+      20,
+      30,
+      45
+    ],
+    "rotation_reps": 50,
+    "lever_offsets_m": [
+      0.02,
+      0.04,
+      0.06,
+      0.08
+    ],
+    "lever_directions": 20,
+    "lever_direction_mode": "sphere",
+    "lever_fixed_direction": [
+      0.0,
+      0.0,
+      1.0
+    ],
+    "angacc_lp_hz": 10.0
+  },
+  "split": {
+    "dev_fraction": 0.3,
+    "stratify": [
+      "cohort",
+      "sensor_type"
+    ]
+  },
+  "stats": {
+    "bootstrap": 2000,
+    "ci": 0.95,
+    "age_cut": 60
+  },
+  "_source_note": "Formats, units (acc m/s^2, gyro rad/s), metadata keys, [Toe-off, Heel-strike] order and sensor ranges verified against Voisard et al. 2025 (Sci Data 12:1674, Tables 3,5,9) and real trial HS_1_3."
+}

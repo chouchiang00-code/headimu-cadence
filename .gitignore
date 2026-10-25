@@ -1,0 +1,21 @@
+# Public data and regenerable analysis artifacts
+*.npz
+*.zip
+dataset_extracted/
+external/
+v16_data/
+results_v11/
+results_v16/
+results_v15/
+results_v11_inspect/
+SYNTHETIC_TEST_ONLY/
+
+# Python and local environments
+__pycache__/
+.venv/
+*.pyc
+.DS_Store
+
+# Generated manuscripts and figures
+*.docx
+*.pdf
