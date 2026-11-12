@@ -1,7 +1,9 @@
 """Graphical abstract V16 for IEEE Sensors Journal (landscape, journal palette). Numbers from results_v11 / results_v16:
-B0 relative error 1.5% (table_primary.csv), B1 1.6% (endtoend_stats.json), CVA large errors 35% (B0),
-SR AUROC 0.90 / SR+2 0.92 (trust_extra.json, trust_summary.json), CVA excluded by SR 21% (trust_operating_points.csv),
-DUO-GAIT B1 0.70 steps/min (external_stats.json)."""
+B0 1.53 steps/min, 1.5% relative (table_primary.csv); B1 1.56 steps/min, equivalent to B0 (post_stats.json, TOST);
+CVA large errors 35% (B0); A0 tilt: stable to ~10 deg, +14% at 10-20 deg (table_sim_rotation.csv); >= 50 Hz
+(sensitivity_summary.csv); SR AUROC 0.90 / SR+2 0.92 (trust_extra.json, trust_summary.json); SR excludes 30% of
+VGA >= 3 segments, SR+2 22% (trust_operating_points.csv); DUO-GAIT B1 0.70 steps/min (external_stats.json).
+Turns are whole-body 180 deg turns (drawn as a U-turn, not a head rotation)."""
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -11,7 +13,7 @@ import numpy as np
 plt.rcParams.update({"font.family": "TeX Gyre Heros", "mathtext.fontset": "stixsans", "font.size": 7,
                      "savefig.bbox": "tight", "savefig.pad_inches": 0.03})
 INK, EDGE, FILL = "#1a1a1a", "#5b616b", "#e7e9ec"
-NAVY, RED, SKY = "#1f3b63", "#b03a2e", "#8fb3d9"
+NAVY, RED, SKY, TEAL = "#1f3b63", "#b03a2e", "#8fb3d9", "#007367"
 
 fig = plt.figure(figsize=(3.3, 2.15))
 ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 330); ax.set_ylim(0, 215); ax.axis("off")
@@ -42,24 +44,27 @@ ax.plot([10, 100], [26, 26], color=EDGE, lw=0.6)
 ax.text(hx + 19, hy + 17, "head IMU", fontsize=6.3, color=NAVY, fontweight="bold", ha="left", va="center")
 ax.text(hx - 21, 96, "lower back\n(comparator)", fontsize=5.4, color=EDGE, ha="right", va="center", linespacing=1.05)
 ax.text(hx + 17, 38, "foot IMUs\n(reference)", fontsize=5.4, color=EDGE, ha="left", va="center", linespacing=1.05)
-# turn arrow + tilt
-ax.add_patch(FancyArrowPatch((hx - 15, hy - 18), (hx + 15, hy - 18), connectionstyle="arc3,rad=0.45",
-                             arrowstyle="-|>", mutation_scale=6, color=RED, lw=0.8, zorder=6))
-ax.text(hx - 26, hy - 24, "turns", fontsize=5.6, color=RED, ha="center")
+# whole-body 180-degree turn: a U-turn arrow beside the walker (not a head rotation)
+ax.plot([88, 88], [66, 86], color=RED, lw=1.1, solid_capstyle="round", zorder=6)
+th = np.linspace(np.pi, 0, 40)
+ax.plot(98 + 10 * np.cos(th), 86 + 10 * np.sin(th), color=RED, lw=1.1, zorder=6)
+ax.add_patch(FancyArrowPatch((108, 86), (108, 65), arrowstyle="-|>", mutation_scale=6, color=RED, lw=1.1,
+                             shrinkA=0, shrinkB=0, zorder=6))
+ax.text(98, 57, "180° turns", fontsize=5.4, color=RED, ha="center", va="center", fontweight="bold")
 ax.text(6, 12, "accuracy · mounting · trust · transfer", fontsize=5.0, color=EDGE, ha="left", style="italic")
 
 # --- right: result cards
 GOLD = "#a8730f"
-cards = [("1.5%", "median cadence error\n(head-only offline: 1.6%);\nstroke: 35% large errors", NAVY),
-         ("> 20°", "tilt degrades fixed-axis\ndetection; norm and vertical\nacceleration are invariant", NAVY),
-         ("0.90", "AUROC of step-regularity flag\n(0.92 with two more features);\ncost: 21% of stroke data", RED),
+cards = [("1.53", "steps/min median error (1.5%);\nhead-only offline 1.56, equivalent;\nstroke: 35% large errors", NAVY),
+         ("10–20°", "fixed axis tolerates only ≤10–20°\ntilt; norm and vertical acc. are\ninvariant; sampling ≥ 50 Hz", NAVY),
+         ("0.90", "AUROC of step-regularity flag\n(0.92 with two more features);\ncost: excludes 30% of VGA ≥ 3", TEAL),
          ("0.70", "steps/min on an independent\ndataset, frozen parameters\n(16 healthy adults)", GOLD)]
 y = 186
 for big, small, col in cards:
     ax.add_patch(FancyBboxPatch((128, y - 39), 196, 37, boxstyle="round,pad=0,rounding_size=4",
                                 fc="#f6f7f9", ec="#d5d9de", lw=0.6))
     ax.add_patch(Rectangle((128, y - 39), 3.5, 37, fc=col, ec="none"))
-    ax.text(140, y - 20.5, big, fontsize=12, fontweight="bold", color=col, va="center", ha="left")
+    ax.text(140, y - 20.5, big, fontsize=12 if len(big) <= 4 else 10.5, fontweight="bold", color=col, va="center", ha="left")
     ax.text(207, y - 20.5, small, fontsize=5.5, color=INK, va="center", ha="left", linespacing=1.12)
     y -= 42
 import sys

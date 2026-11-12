@@ -19,3 +19,7 @@ __pycache__/
 # Generated manuscripts and figures
 *.docx
 *.pdf
+
+# Regenerable vector exports larger than 5 MB (retained in the source ZIP)
+/manuscript_build/vector_figures/main/Fig2_bland_altman.svg
+/manuscript_build/vector_figures/supplementary/FigS3_signal_verification.svg

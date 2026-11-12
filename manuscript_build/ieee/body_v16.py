@@ -1,9 +1,9 @@
-TITLE = ("Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Failure Modes, "
-         "Trustworthiness, and External Validation")
-AUTHORS = "Qiu Qiang, Chen Shiqi, and Jin Zhenkun"
-FOOTNOTE = ("[[Manuscript received Month DD, 2026.]] This work was supported by the National College Students’ Innovation "
-            "and Entrepreneurship Training Program under Grant 202611654002. (Corresponding author: Jin Zhenkun.)\n\n"
-            "Qiu Qiang, Chen Shiqi, and Jin Zhenkun are with the School of Artificial Intelligence and Big Data, Wuhan "
+TITLE = ("Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Trustworthiness, "
+         "and External Validation")
+AUTHORS = "Qiang Qiu, Shiqi Chen, and Zhenkun Jin"
+FOOTNOTE = ("[[Manuscript received Month DD, 2026.]] This work was supported by the National Training Program of Innovation "
+            "and Entrepreneurship for Undergraduates under Grant 202611654002. (Corresponding author: Zhenkun Jin.)\n\n"
+            "Q. Qiu, S. Chen, and Z. Jin are with the School of Artificial Intelligence and Big Data, Wuhan "
             "University of Business, Wuhan 430056, China (e-mail: 2162385684@qq.com; 1705296766@qq.com; "
             "jinzhenkun@wbu.edu.cn).\n\n"
             "This work involved human subjects only through secondary analysis of two public, de-identified datasets, so "
@@ -16,12 +16,12 @@ ABSTRACT = (
  "accuracy in impaired gait, reliance on reference-assisted segmentation, and output trustworthiness and "
  "generalizability are unclear. Using a public dataset of 260 participants in eight clinical cohorts, we evaluated "
  "cadence from a single forehead inertial measurement unit. The reference was foot-sensor heel strikes in 183 held-out "
- "participants. With reference-assisted segmentation, median absolute error was 1.53 steps/min (1.5%), not "
- "significantly different from a lower-back sensor. Large errors arose mainly in slow, irregular gait (35% of stroke "
- "segments). A head-only pipeline that detected walking, turns, and steps itself had a similar median error offline "
- "(1.56 steps/min; paired difference 0.00) but 1.6% missing outputs. A causal version showed a 2.2 steps/min bias, "
+ "participants. With reference-assisted segmentation, median absolute error was 1.53 steps/min (1.5%), "
+ "equivalent to a lower-back sensor. Large errors arose mainly in slow, irregular gait (35% of stroke "
+ "segments). A head-only pipeline that detected walking, turns, and steps itself was equivalent offline (1.56 "
+ "steps/min; mean paired difference 0.05) but had 1.6% missing outputs. A causal version showed a 2.2 steps/min bias, "
  "0.35-s step confirmation, and a 2.6-s start-up delay. Gravity-frame features were invariant to mounting rotation and "
- "robust to lever arms, noise, and gyroscope bias, but errors grew below 50 Hz. A step-regularity screen discriminated "
+ "robust to lever arms, noise, and moderate gyroscope bias, but errors grew below 50 Hz. A step-regularity screen discriminated "
  "large errors (area under the receiver operating characteristic curve 0.90). Adding estimator disagreement and "
  "interval variability raised this area to 0.92 and excluded fewer segments of severely impaired walkers (22% vs. "
  "30%). Yet it did not lower the residual error at matched coverage. We applied the pipeline unchanged to an "
@@ -100,20 +100,17 @@ p(
   "accelerations including gravity and offset-corrected angular rates ⟦voisard_sd⟧. Axes were harmonized so that X is "
   "craniocaudal, signals were low-passed at 14 Hz (eighth order), and gaps <1.5 s were interpolated; raw packet "
   "counters marked gaps >0.05 s invalid.")
-fig("fig_schematics/fig1_sensors_frames_leverarm.png",
-    "Sensor placement and mounting errors. (a) Forehead (HE), lower-back (LB), and foot (LF/RF) IMUs; X is the harmonized "
-    "craniocaudal axis. (b) A rigid rotation **R**(*θ*, **u**) maps X to X′ with tilt *φ* = arccos *R*_{11}; the dashed box marks "
-    "a simulated temple position offset by **r**. (c) For yaw rate *ω* and angular acceleration *α*, a sensor at offset **r** "
-    "additionally senses **ω** × (**ω** × **r**) and **α** × **r**, see (5).", 3.1)
+fig("fig_schematics/fig1_sensors_frames_leverarm_v17.png",
+    "Sensors and mounting errors. (a) Sensor sites; X is the harmonized craniocaudal axis. (b) A rotation **R**(*θ*, **u**) "
+    "tilts X to X′ by *φ* = arccos *R*_{11}; **r** offsets the sensor to a simulated temple site. (c) Lever-arm terms of (5).", 3.1)
 p(
   "*DUO-GAIT (external).* Sixteen healthy adults (21–35 years) wore nine Physilog 5 IMUs (128 Hz, ±16 *g*, ±1000°/s), "
   "including one on the head ⟦duogait,duogait_data⟧. They walked for 6 min in a 35-m hallway under single- and "
   "dual-task conditions, before and after a fatiguing protocol (64 walks). The reference is the providers’ per-stride "
   "foot-IMU initial contacts (stride-time root-mean-square error 0.02 s against two reference systems ⟦duogait⟧), with "
   "turning and interruption flags. Reference straight passes are intervals in which both feet have strides that are "
-  "neither turning nor interrupted. Head files were complete (no gaps or saturation; ⟪T:ext_audit⟫). In both datasets, "
-  "the reference is a validated foot-IMU algorithm rather than a laboratory gold standard, and it is independent of the "
-  "head signal.")
+  "neither turning nor interrupted. Head files were complete (no gaps or saturation; ⟪T:ext_audit⟫). Both references "
+  "are independent of the head signal.")
 
 # =============================================================================== III
 h1("Methods")
@@ -139,12 +136,12 @@ p(
   "acceleration norm above a threshold (gaps <1 s filled, bouts ≥3 s). Turns are runs of the turning gate (*q* > "
   "*q*^{*} = 30°/s, median 0.15 s, ≥0.30 s, padded 0.20 s, merged within 0.5 s) whose integrated rotation reaches 90°. "
   "Straight segments are bouts minus turns (≥2 s), and steps are A1 peaks within bouts. Cadence per segment is 60 over "
-  "the median interval (≥3 intervals); otherwise there is no output. The pipeline makes no assumption on the number of "
-  "bouts or turns. *B2 (causal)* replaces each filter with its causal counterpart, initialized on the first sample. It "
-  "uses a trailing RMS with hysteresis (off at 0.7 × on; holds 0.5 and 1.0 s) and a trailing gate median, and it "
-  "confirms a peak 0.20 s after it occurs. At each confirmed step, it emits a running cadence: 60 over the median of "
-  "the last six intervals within the current straight bout. Each reference segment was assigned the B1 segment with the "
-  "largest overlap (≥1 s) and the median of the B2 outputs emitted within it; segments without output were failures.")
+  "the median interval (≥3 intervals); otherwise there is no output. *B2 (causal)* replaces each filter with its causal "
+  "counterpart, initialized on the first sample. It uses a trailing RMS with hysteresis (off at 0.7 × on; holds 0.5 and "
+  "1.0 s) and a trailing gate median, and it confirms a peak 0.20 s after it occurs. At each confirmed step, it emits a "
+  "running cadence: 60 over the median of the last six intervals within the current straight bout. Each reference "
+  "segment was assigned the B1 segment with the largest overlap (≥1 s) and the median of the B2 outputs emitted within "
+  "it; segments without output were failures.")
 h2("Trustworthiness Criteria")
 p(
   "*Turn gate (A2)* removes A1 candidates inside gated intervals; its control *A2-R* circularly shifts the mask at "
@@ -173,8 +170,10 @@ p(
   "thresholds, and the Q2 coefficients; all else was fixed beforehand (⟪T:params⟫). The B1/B2 and Q2 analyses were "
   "designed after the primary test results were known and are labeled *exploratory*. One *post hoc* variant, *B2-t*, "
   "re-selected the causal detector parameters on development data after the first evaluation showed excess detections "
-  "(⟪T:tuning⟫). For DUO-GAIT, every parameter was frozen. Adaptation was limited to unit conversion and polyphase "
-  "resampling from 128 to 100 Hz; axis conventions are irrelevant to the invariant features.")
+  "(⟪T:tuning⟫). Post hoc analyses (offset calibration, equivalence, error thresholds, a published detector, "
+  "computational cost, clinical scale) are in ⟪T:post⟫. For DUO-GAIT, every parameter was frozen. Adaptation was "
+  "limited to unit conversion and polyphase resampling from 128 to 100 Hz; axis conventions are irrelevant to the "
+  "invariant features.")
 
 # =============================================================================== IV
 h1("Outcomes and Statistics")
@@ -191,7 +190,8 @@ p(
   "participant was the unit of analysis: 95% confidence intervals (CIs) came from 2000 participant-level bootstrap "
   "resamples, and paired comparisons used Wilcoxon signed-rank tests with Holm correction ⟦holm⟧. Cross-visit agreement "
   "used the intraclass correlation coefficient ICC(A,1) ⟦mcgraw,koo⟧. A non-significant difference is not interpreted "
-  "as equivalence.")
+  "as equivalence. Equivalence was tested post hoc (two one-sided tests, margin ±1.8 steps/min, one sample of cadence "
+  "resolution).")
 
 # =============================================================================== V
 h1("Results")
@@ -202,11 +202,15 @@ p("One visit of RIL_12 (five trials) lacked a head signal, leaving 1351 trials o
   "angle over the reference turn 177° (⟪T:qc⟫, ⟪F:qc⟫). Recomputing B0 from the packed head signals reproduced all 7440 test "
   "values of the primary analysis (maximum difference 5 × 10⁻⁶ steps/min).")
 h2("Cross-Cohort Accuracy and Failure Modes (B0)")
-p("For head A1, the median absolute cadence error was 1.53 steps/min (95% CI 1.31–1.71), the relative error 1.50%, and the bias "
-  "−0.45 steps/min with LoA −11.5 to 10.6 (Table II, Fig. 2). A0g and A0 performed alike (Holm-adjusted *p* = 1.00); AC had the "
-  "smallest median error (1.02) but wider LoA; the lower back reached 1.36 steps/min, not significantly different from the head "
-  "(*p* = 1.00). Head A1 events reached an F1 of 0.936 with a 31.4-ms timing error (⟪F:example⟫, ⟪T:events⟫). Error was lowest "
-  "in HS (1.11) and highest in CVA (2.58), with the same ordering at the lower back (⟪T:strata⟫, ⟪F:cohorts⟫).")
+p(
+  "For head A1, the median absolute cadence error was 1.53 steps/min (95% CI 1.31–1.71), the relative error 1.50%, and "
+  "the bias −0.45 steps/min with LoA −11.5 to 10.6 (Table II, Fig. 2). A0g and A0 performed alike (Holm-adjusted *p* = "
+  "1.00); AC had the smallest median error (1.02) but wider LoA; the lower back reached 1.36 steps/min, equivalent to "
+  "the head (mean paired difference −0.04; 90% CI −0.36 to 0.28). Run untuned on the same segments, the open-source "
+  "EarGait detector ⟦seifer⟧ had a lower median error (1.13; −0.40, 95% CI −0.52 to −0.20) but doubled cadence in 4.9% "
+  "of segments, mainly in impaired gait (LoA −34 to 44; ⟪T:post⟫). Head A1 events reached an F1 of 0.936 with a 31.4-ms "
+  "timing error (⟪F:example⟫, ⟪T:events⟫). Error was lowest in HS (1.11) and highest in CVA (2.58), with the same "
+  "ordering at the lower back (⟪T:strata⟫, ⟪F:cohorts⟫).")
 table("Straight-Walking Cadence Agreement With Reference-Assisted Segmentation (Test Set, 183 Participants, 1860 Segments)",
       ["Method", "|*e*_{C}|, median [95% CI]", "Rel. error (%)", "Bias", "95% LoA", "Halv./doubl. (%)"],
       [["HE-A0", "1.54 [1.41, 1.67]", "1.55", "−0.27", "−11.8, 11.3", "0.2 / 0.1"],
@@ -235,20 +239,23 @@ h2("Head-Only End-to-End Estimation")
 p(
   "B1 found walking with a median F1 of 0.95 (recall 1.00). It detected turns with recall 0.99 and precision 0.80 "
   "(boundary error 0.27 s). Its median error was close to that of B0: 1.56 steps/min (95% CI 1.44–1.72), with LoA −12.3 "
-  "to 11.3 and a paired difference from B0 of 0.00 (95% CI 0.00–0.00; *p* = 0.42). However, 1.6% of segments had no "
-  "output, and large-or-missing segments rose from 9.1% to 10.9% (Table III, Fig. 3). Turn detection was weakest in CVA "
-  "(F1 0.75). Half of the missing outputs (15 of 30 segments) came from recordings whose angular rate at rest exceeded "
-  "the gate threshold. Such an apparent resting turn rate >30°/s occurred in 17 of 930 test trials (11 of them HS, both "
-  "sensor systems). Of these 17 trials, 8 (47%) lost an output, versus 1.2% of the others. Without them, the HS "
-  "no-output rate fell from 4.0% to 2.0% (⟪T:e2e_cohort⟫, ⟪T:e2e_detect⟫).")
+  "to 11.3. It was equivalent to B0 (mean paired difference 0.05; 90% CI −0.04 to 0.13). However, 1.6% of segments had "
+  "no output, and large-or-missing segments rose from 9.1% to 10.9% (Table III, Fig. 3). Turn detection was weakest in "
+  "CVA (F1 0.75). Half of the missing outputs (15 of 30 segments) came from recordings whose angular rate at rest "
+  "exceeded the gate threshold. Such a resting rate >30°/s occurred in 17 of 930 test trials (11 HS); 8 of them (47%) "
+  "lost an output, versus 1.2% of the others. Without them, the HS no-output rate fell from 4.0% to 2.0% "
+  "(⟪T:e2e_cohort⟫, ⟪T:e2e_detect⟫). Post hoc, removing the offset measured over a known still period cut B1 no-output "
+  "to 0.5% (−1.1 pp, 95% CI −2.3 to −0.1); an offset estimated from the head signal did not help (⟪T:post⟫).")
 p(
   "The prespecified causal pipeline B2 was less accurate (1.62 steps/min; +0.14 vs. B1, 95% CI 0.04–0.32, Holm *p* = "
-  "0.006). It had a positive bias (2.2 steps/min) and wide LoA (−15.0 to 19.4). Its detector produced 11% more peaks "
-  "than heel strikes (precision 0.77), worst in KOA (21.6% large errors) and CVA (42.0%). Its turn onsets were declared "
-  "0.58 s after the reference with precision 0.39, as the causal gate lacks the 90° criterion. Steps were confirmed "
-  "0.35 s after the heel strike, and the first cadence was output 2.6 s after walking onset (Fig. 3(b)). The post hoc "
-  "variant B2-t (longer confirmation, 0.30 s) reduced the bias to 0.75 steps/min and the median error to 1.55 (+0.04 "
-  "vs. B1, Holm *p* = 0.22), at 0.46-s confirmation latency.")
+  "0.006) and was not equivalent to it. It had a positive bias (2.2 steps/min) and wide LoA (−15.0 to 19.4). Its "
+  "detector produced 11% more peaks than heel strikes (precision 0.77), worst in KOA (21.6% large errors) and CVA "
+  "(42.0%). Its turn onsets were declared 0.58 s after the reference with precision 0.39, as the causal gate lacks the "
+  "90° criterion. Steps were confirmed 0.35 s after the heel strike, and the first cadence was output 2.6 s after "
+  "walking onset (Fig. 3(b)). The post hoc variant B2-t (longer confirmation, 0.30 s) reduced the bias to 0.75 "
+  "steps/min and the median error to 1.55 (+0.04 vs. B1, Holm *p* = 0.22), at 0.46-s confirmation latency. A "
+  "sample-by-sample B2 reproduced all 27 428 test outputs with about 30 000 operations per second of data and 2.4 kB of "
+  "state (⟪T:post⟫).")
 table("Reference-Assisted (B0) Versus Head-Only Offline (B1) and Causal (B2, B2-t) Estimation, Test Set",
       ["Metric", "B0", "B1", "B2", "B2-t^{a}"],
       [["|*e*_{C}|, median [95% CI]", "1.53 [1.37, 1.64]", "1.56 [1.44, 1.72]", "1.62 [1.51, 1.70]", "1.55 [1.45, 1.64]"],
@@ -286,7 +293,7 @@ table("Operating Conditions of Head-IMU Cadence Estimation (Simulation and Obser
        ["Lever arm 2–8 cm", "No effect in straight walking; ≈3 m/s² centripetal term at 360°/s, 8 cm", "No step events within turns"],
        ["Accelerometer noise ≤0.2 m/s²", "No increase in error", "Consumer MEMS adequate"],
        ["Gyroscope bias", "≤10°/s: no effect; apparent resting rate >30°/s: 47% of trials without output",
-        "Zero-rate calibration at rest"],
+        "Calibrate over a known still period"],
        ["Sampling rate", "50 Hz: +0.5 pp large errors; 25 Hz: +4.9 pp", "≥50 Hz"],
        ["AC estimator", "Lowest median error; widest LoA; ≥1.8 s per segment", "Segment summaries only"]],
       [1380, 2160, 1500],
@@ -305,8 +312,8 @@ p(
   "rate; calibration slope 1.12) (Fig. 5(c); ⟪T:q2⟫). The criteria differed in whom they excluded (Fig. 5(d); "
   "⟪T:q2_groups⟫). At VGA ≥3 (174 segments, 23 participants), SR excluded 29.9% of segments and falsely excluded 8.5% "
   "of those without a large error. SR+2 excluded 22.4% (retained +7.5 pp, 95% CI 1.4–14.9) and falsely excluded 5.1% "
-  "(−3.4 pp, −11.3 to 0.0). It detected fewer large errors, however (sensitivity 0.58 vs. 0.74). Table V summarizes the "
-  "criteria.")
+  "(−3.4 pp, −11.3 to 0.0), but with lower sensitivity (0.58 vs. 0.74). These findings held with large errors defined "
+  "at 3 or 10 steps/min (SR AUROC 0.79 and 0.96; ⟪T:post⟫). Table V summarizes the criteria.")
 fig("fig_v16/fig11_trust.png",
     "Trustworthiness versus coverage-matched random removal (test set). (a) Turn gate: recall gain of A2 over A2-R versus "
     "fraction of time kept (shading: 95% CI). (b) Error–coverage curves of the step-regularity screen (Q1), SR+2, and the full "
@@ -326,9 +333,9 @@ h2("External Validation (DUO-GAIT)")
 p(
   "Applied unchanged to 797 straight passes (median 22 s, cadence 107 steps/min) of 64 walks, B1 detected walking with "
   "an F1 of 0.99. It detected turns with precision 0.93 and recall 0.95, and steps with F1 0.98. The median cadence "
-  "error was 0.70 steps/min (95% CI 0.64–0.78), with LoA −2.5 to 1.9 and no missing output (Table VI; ⟪F:ext_ba⟫). "
-  "Errors did not differ between single/dual-task and control/fatigue conditions (Friedman *p* = 0.34; ⟪T:ext_cond⟫). "
-  "Only one pass had a large error, so the transfer of the trust criteria could not be tested for discrimination. SR "
+  "error was 0.70 steps/min (95% CI 0.64–0.78), with LoA −2.5 to 1.9 and no missing output (Table VI; ⟪F:ext_ba⟫). B1 "
+  "was again equivalent to B0. Errors did not differ between single/dual-task and control/fatigue conditions (Friedman "
+  "*p* = 0.34; ⟪T:ext_cond⟫). With only one large error, discrimination of the trust criteria could not be tested; SR "
   "and SR+2 flagged 0% and 0.4% of passes (median SR 0.98).")
 table("Frozen External Validation on DUO-GAIT (16 Participants, 64 Walks, 797 Passes)",
       ["Metric", "B0 (ref.-assisted)", "B1 (head-only)", "B2 (causal)"],
@@ -345,17 +352,20 @@ table("Frozen External Validation on DUO-GAIT (16 Participants, 64 Walks, 797 Pa
 h1("Discussion")
 h2("Accuracy With and Without Reference Segmentation")
 p(
-  "Across eight cohorts, forehead-IMU cadence agreed with an independent foot-IMU reference to about 1.5%. It did not "
-  "differ significantly from the lower back. For context, Mobilise-D reported relative cadence errors of up to about "
-  "8.5% for lower-back algorithms in real-world data ⟦mico⟧. EarGait reached stride-time errors of about 12 ms "
-  "⟦seifer⟧, and a temple-worn IMU a heel-strike F1 of about 93% in daily life ⟦tasca⟧; settings differ. The head-only "
-  "offline pipeline came within 0.03 steps/min of the reference-assisted median error. Median accuracy therefore does "
-  "not hinge on reference segmentation. The added failures came from uncalibrated gyroscope offsets, which a resting "
-  "zero-rate calibration addresses, and from turn detection in slow walkers. Real-time operation is the larger cost. "
-  "Without look-ahead, the detector over-counted peaks in irregular gait. Each step was confirmed 0.35–0.46 s after the "
-  "heel strike, and the first output came 2.6 s after walking onset. Large errors with any pipeline arose in slow, "
-  "irregular walking, which defeated the lower back equally. Step asymmetry cannot be estimated from one head IMU "
-  "without step laterality ⟦seifer⟧.")
+  "Across eight cohorts, forehead-IMU cadence agreed with an independent foot-IMU reference to about 1.5%. The "
+  "1.5-steps/min median error is a tenth of the smallest detectable cadence change in Parkinson's disease (15 "
+  "steps/min) ⟦lang⟧ and of our cross-visit MDC95 (17); errors above 15 steps/min occurred in 2.6% of segments (CVA "
+  "13%). It was equivalent to the lower back within one sample of cadence resolution. For context, Mobilise-D reported "
+  "relative cadence errors of up to about 8.5% for lower-back algorithms in real-world data ⟦mico⟧. EarGait reached "
+  "stride-time errors of about 12 ms ⟦seifer⟧, and a temple-worn IMU a heel-strike F1 of about 93% in daily life "
+  "⟦tasca⟧; settings differ. EarGait's detector traded higher typical accuracy for cadence doubling in impaired gait. "
+  "The head-only offline pipeline was equivalent to the reference-assisted one, so median accuracy does not hinge on "
+  "reference segmentation. Its added failures came from uncalibrated gyroscope offsets and from turn detection in slow "
+  "walkers. Calibration over a known still period removed most of these, but an offset estimated from walking data did "
+  "not, so devices need an explicit still phase. Real-time operation is the larger cost. Without look-ahead, the "
+  "detector over-counted peaks in irregular gait. Steps were confirmed 0.35–0.46 s late. Large errors with any pipeline "
+  "arose in slow, irregular walking, which defeated the lower back equally. Step asymmetry cannot be estimated from one "
+  "head IMU without step laterality ⟦seifer⟧.")
 h2("Robustness Boundaries")
 p(
   "Gravity-frame and norm features make the cadence estimate independent of how the head sensor is rotated. This "
@@ -367,47 +377,46 @@ h2("Trustworthiness: Gain, Calibration, and Cost")
 p(
   "All criteria beat random removal, but they differ in what they cost and whom they exclude (Table V). SR measures "
   "gait regularity. It therefore cannot separate an unreliable signal from impaired gait, and it excluded nearly a "
-  "third of the most impaired walkers’ segments. Adding two physically interpretable signs of estimator failure, "
-  "disagreement between two cadence estimators and interval variability, improved discrimination slightly. It also "
-  "excluded fewer segments of severely impaired walkers. However, it caught fewer of their large errors and did not "
-  "lower the residual error at matched coverage. Multi-feature screening thus shifts the trade-off between retaining "
-  "impaired walkers and removing errors; it does not escape it. Screened results should report coverage by population. "
-  "Risk scores are better shown as confidence than used for silent exclusion. Probabilities fitted on one population "
-  "need recalibration when the error base rate changes.")
+  "third of the most impaired walkers’ segments. Adding two signs of estimator failure (estimator disagreement, "
+  "interval variability) improved discrimination slightly and excluded fewer impaired walkers, but caught fewer of "
+  "their large errors and did not lower residual error at matched coverage. Multi-feature screening thus shifts the "
+  "trade-off between retaining impaired walkers and removing errors; it does not escape it. Screened results should "
+  "report coverage by population, and risk scores are better shown as confidence than used for silent exclusion. "
+  "Probabilities fitted on one population need recalibration when the error base rate changes.")
 h2("Generalization")
 p(
   "On DUO-GAIT, the frozen head-only pipeline kept errors below 1 step/min across task and fatigue conditions. The "
   "device, sampling rate, and protocol differed, and straight passes were longer. This supports transfer across devices "
-  "and protocols in healthy adults, but it is not a clinical validation. Because large errors were nearly absent, the "
-  "transfer of the trust criteria remains untested. The smaller errors than in Voisard likely reflect longer passes, "
-  "regular gait, and young participants. These factors are confounded and cannot be separated.")
+  "and protocols in healthy adults, but it is not a clinical validation. Trust-criterion transfer remains untested. The "
+  "smaller errors than in Voisard likely reflect longer passes, regular gait, and young participants, which are "
+  "confounded.")
 h2("Limitations")
 p(
   "Both references are validated foot-IMU algorithms, not motion capture. The Voisard sensor was strapped to the "
   "forehead. Walks were 6–10 m, turns were whole-body turns, and active head turns were absent ⟦fawden,tasca⟧. The "
-  "end-to-end and risk-model analyses were designed after the primary results were known and are exploratory. B2-t is "
-  "post hoc, with one additional development-set selection. VGA is a single subjective rating. Cross-visit ICCs mix "
-  "re-donning with clinical change. We will next record a temple-integrated IMU with foot IMUs and video, including "
-  "re-donning, head turns, and free-living use.")
+  "end-to-end and risk-model analyses were designed after the primary results were known and are exploratory. B2-t and "
+  "the analyses in ⟪T:post⟫ are post hoc. VGA is a single subjective rating. Cross-visit ICCs mix re-donning with "
+  "clinical change. We will next record a temple-integrated IMU with foot IMUs and video, including re-donning, head "
+  "turns, and free-living use.")
 
 # =============================================================================== VII
 h1("Conclusion")
 p(
   "A single forehead IMU estimated cadence across eight clinical cohorts with a median error of about 1.5 steps/min. A "
-  "head-only offline pipeline came close to this without reference segmentation (1.56 steps/min, 1.6% missing outputs). "
+  "head-only offline pipeline was equivalent without reference segmentation (1.56 steps/min, 1.6% missing outputs). "
   "Real-time operation added bias and a 0.35–0.46-s confirmation delay. Gravity-frame features were invariant to "
   "mounting rotation and robust to lever arms, noise, and moderate gyroscope bias. Sampling below 50 Hz and large "
   "uncalibrated gyroscope offsets degraded results. Step-regularity and multi-feature screens identified untrustworthy "
-  "data better than random removal. Their benefit, however, came at the cost of excluding the most impaired walkers; "
-  "multi-feature screening reduced this cost but did not remove it. Frozen on one dataset, the head-only pipeline "
-  "transferred to an independent device and protocol in healthy adults. Eyewear integration, clinical free-living use, "
-  "and calibrated real-time trust estimates require prospective validation.")
+  "data better than random removal. They did so at the cost of excluding the most impaired walkers, which multi-feature "
+  "screening reduced but did not remove. Frozen on one dataset, the head-only pipeline transferred to an independent "
+  "device and protocol in healthy adults. Eyewear integration, clinical free-living use, and calibrated real-time trust "
+  "estimates require prospective validation.")
 
 TAIL = [
  ("h1u", "Data and Code Availability"),
  ("p", "The datasets are available on figshare ⟦voisard_fig⟧ and Zenodo ⟦duogait_data⟧. Code, configuration, the participant "
        "split, per-trial outputs, scripts regenerating all tables and figures, and an analysis-status register are available at "
-       "[[repository URL and archived DOI, release version]]."),
+       "https://github.com/chouchiang00-code/headimu-cadence."),
  ("h1u", "Acknowledgment"),
  ("p", "The authors thank C. Voisard, L. Zhou, and colleagues for making their datasets publicly available."),
 ]

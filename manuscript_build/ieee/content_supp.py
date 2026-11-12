@@ -279,6 +279,87 @@ ITEMS["T:ext_cond"] = (S_EXT, T(
     f"Frozen error-risk criteria flagged {TT['Q1_flag_flagged_pct']:.1f}% (Q1), {TT['Q2c_SR_plus_2_flag_flagged_pct']:.1f}% "
     f"(Q2c), and {TT['Q2d_full_flag_flagged_pct']:.1f}% (Q2d) of passes (median segment SR "
     f"{EX['sr_seg_quantiles']['0.5']:.3f}); with a single large error, transfer of discrimination could not be tested."))
+# ------------------------------------------------------------------------------------------------ V16: post hoc
+PS = json.loads((RES / "post" / "post_stats.json").read_text())
+GR = json.loads((RES / "post" / "gyrocal_rule_ref.json").read_text())
+gh, gr = PS["gyrocal_head"], PS["gyrocal_ref"]
+rows = [["Calibration", "Rule chosen on development data",
+         f"head-only offset estimate: never apply; known still period: apply if offset > {gr['selected_threshold_dps']:g}°/s "
+         f"({gr['trials_corrected']} of 930 test trials)"]]
+for k in ("B1", "B2"):
+    a = gr[k]
+    rows.append(["Calibration", f"{k} no output (%)",
+                 f"{a['no_output_pct'][0]:.2f} → {a['no_output_pct'][1]:.2f} ({m(a['no_output_diff_pp'][0])} pp {ci(a['no_output_diff_pp'][1])})"])
+    rows.append(["Calibration", f"{k} |*e*_{{C}}| > 5 or no output (%)",
+                 f"{a['big_or_missing_pct'][0]:.2f} → {a['big_or_missing_pct'][1]:.2f} ({m(a['big_or_missing_diff_pp'][0])} pp {ci(a['big_or_missing_diff_pp'][1])})"])
+q = GR["test"]["q_static_gt30"]
+rows.append(["Calibration", "B1 / B2 no output, 17 trials with resting rate > 30°/s (%)",
+             f"{q['B1_uncorrected']['no_output_pct']:.1f} → {q['B1_rule']['no_output_pct']:.1f} / "
+             f"{q['B2_uncorrected']['no_output_pct']:.1f} → {q['B2_rule']['no_output_pct']:.1f}"])
+rows.append(["Calibration", "B1 median |*e*_{C}| on segments with output in both runs",
+             f"{gr['B1']['median_abs_err_on_common_segments'][0]:.2f} → {gr['B1']['median_abs_err_on_common_segments'][1]:.2f} steps/min"])
+for e in PS["equivalence"]:
+    rows.append(["Equivalence (±1.8)", e["comparison"].replace("B2-t", "B2-t"),
+                 f"mean {m(e['mean_diff'])}; 90% CI {ci(e['ci90_t'])}; TOST p {'< 0.001' if e['p_tost'] < 0.001 else f'= {e['p_tost']:.2f}'}; "
+                 f"{'equivalent' if e['equivalent'] else 'not equivalent'} (passes from ±{e['smallest_margin_passing']:.2f})"])
+for r in PS["threshold_sensitivity"]:
+    th = r["threshold"]
+    rows.append(["Threshold", f"{th} steps/min: large or missing (%), B0 / B1 / B2 / B2-t",
+                 f"{r['B0_big_or_missing_pct']:.1f} / {r['B1_big_or_missing_pct']:.1f} / {r['B2_big_or_missing_pct']:.1f} / "
+                 f"{r['B2t_big_or_missing_pct']:.1f} (CVA {r['B0_big_pct_CVA']:.1f}, HS {r['B0_big_pct_HS']:.1f} for B0)"])
+    rows.append(["Threshold", f"{th} steps/min: AUROC Q1 / SR+2 / full",
+                 f"{r['AUROC_Q1']:.3f} {ci(r['AUROC_Q1_ci'], 3)} / {r['AUROC_SR+2']:.3f} / {r['AUROC_full']:.3f}; "
+                 f"SR+2 − Q1 {ci(r['AUROC_SR+2_minus_Q1_ci'], 3)}"])
+    rows.append(["Threshold", f"{th} steps/min: large errors kept at 95.5% / 90% coverage, Q1 / SR+2 / full (%)",
+                 f"{r['kept_big_pct_Q1_cov955']:.1f} / {r['kept_big_pct_SR+2_cov955']:.1f} / {r['kept_big_pct_full_cov955']:.1f}; "
+                 f"{r['kept_big_pct_Q1_cov900']:.1f} / {r['kept_big_pct_SR+2_cov900']:.1f} / {r['kept_big_pct_full_cov900']:.1f}"])
+    rows.append(["Threshold", f"{th} steps/min: VGA ≥3, retained (%) / sensitivity / false exclusion (%), Q1 vs SR+2",
+                 f"{r['VGA3_Q1_retained_pct']:.1f} / {r['VGA3_Q1_sensitivity']:.2f} / {r['VGA3_Q1_false_excl_pct']:.1f} vs "
+                 f"{r['VGA3_SR+2_retained_pct']:.1f} / {r['VGA3_SR+2_sensitivity']:.2f} / {r['VGA3_SR+2_false_excl_pct']:.1f}"])
+EG = json.loads((RES / "post" / "eargait_summary.json").read_text())
+CP = json.loads((RES / "post" / "compute_summary.json").read_text())
+CL = json.loads((RES / "post" / "clinical_summary.json").read_text())
+rows.append(["Published detector", "EarGait (untuned) vs head A1 (B0): median |*e*_{C}| (steps/min)",
+             f"{EG['median_abs_err']:.2f} {ci(EG['median_abs_err_ci'])} vs {EG['B0_median_abs_err']:.2f}; difference "
+             f"{m(EG['diff_median_abs_err'])} {ci(EG['diff_median_abs_err_ci'])}"])
+rows.append(["Published detector", "EarGait: bias, LoA; doubling / halving (% of segments)",
+             f"{m(EG['bias'])}, {m(EG['loa'][0])} to {m(EG['loa'][1])}; {EG['doubling_pct']:.1f} / {EG['halving_pct']:.1f} "
+             f"(doubling CIPN {100 * EG['doubling_by_cohort']['CIPN']:.0f}%, KOA {100 * EG['doubling_by_cohort']['KOA']:.0f}%, "
+             f"CVA {100 * EG['doubling_by_cohort']['CVA']:.0f}%)"])
+rows.append(["Published detector", "EarGait vs B0: |*e*_{C}| > 5 or no output (%); event F1 (timing error)",
+             f"{EG['large_or_missing_pct']:.1f} vs {EG['B0_large_or_missing_pct']:.1f} (difference {ci(EG['diff_large_or_missing_ci'])} pp); "
+             f"F1 {EG['event_f1']:.3f} ({EG['event_timing_mae_ms']:.0f} ms)"])
+rows.append(["Computation", "Streaming B2 vs batch B2 (outputs reproduced)",
+             f"{CP['outputs_identical_timing']} of {CP['outputs_batch']} outputs identical ({CP['n_trials_streaming']} test trials, "
+             f"{CP['data_seconds'] / 3600:.2f} h)"])
+rows.append(["Computation", "Streaming B2: operations per second of data; state memory",
+             f"{CP['ops_per_second_total']:,} (filters {CP['ops_per_second_by_stage']['filters']:,}, turn gate "
+             f"{CP['ops_per_second_by_stage']['gate']:,}, peak search {CP['ops_per_second_by_stage']['peak_scan']:,}, "
+             f"robust σ {CP['ops_per_second_by_stage']['sigma']:,}); {CP['state_bytes_float32'] / 1024:.1f} kB (32-bit values)"])
+rows.append(["Computation", "Batch run time per hour of data (Python, one core)",
+             f"B1 {CP['B1_batch_seconds_per_hour']:.1f} s, B2 {CP['B2_batch_seconds_per_hour']:.1f} s"])
+b0, b1 = CL["pipelines"]["B0"], CL["pipelines"]["B1"]
+rows.append(["Clinical scale", "Median |*e*_{C}| / MDC; segments with |*e*_{C}| > MDC (%), all / CVA",
+             f"MDC 15.1 (Parkinson's disease; main-text ref.): B0 {b0['median_over_lang2016_PD']:.2f}, {b0['pct_exceeding_lang2016_PD']:.1f} / "
+             f"{b0['pct_exceeding_lang2016_PD_CVA']:.0f}; B1 {b1['median_over_lang2016_PD']:.2f}, {b1['pct_exceeding_lang2016_PD']:.1f} / "
+             f"{b1['pct_exceeding_lang2016_PD_CVA']:.0f}. Cross-visit MDC95 {CL['anchors_spm']['crossvisit_head_A1']:.1f} (head) and "
+             f"{CL['anchors_spm']['crossvisit_reference']:.1f} (reference)"])
+ITEMS["T:post"] = ("Post Hoc Analyses", T(
+    "Post Hoc Analyses: Gyroscope Offset Calibration, Equivalence, Large-Error Threshold, a Published Detector, Computation, and Clinical Scale (Test Set)",
+    ["Analysis", "Quantity", "Result"], rows, [1500, 3600, 5340],
+    "Calibration: the per-axis median angular rate over a still period was subtracted before re-running B1/B2 with frozen "
+    "parameters; the still period was either estimated from the head signal (start of recording to 0.5 s before the first "
+    "B1 walking bout) or known (to 0.5 s before the first reference heel strike, standing in for a device-initiated still "
+    "phase). Whether to apply it was chosen on development data. Equivalence: two one-sided tests on paired "
+    "participant-level median |e_C| (mean difference with 90% CI); margin ±1.8 steps/min, the one-sample cadence resolution "
+    "at the median step time. Threshold: models and flags frozen as fitted at 5 steps/min; participant-bootstrap 95% CIs. "
+    "Published detector: initial-contact detector of the open-source EarGait package (DiaoAdaptedEventDetection, v3.4.0; "
+    "Kaiser FIR low-pass 5 Hz, singular spectrum analysis with a 1-s window, minima of the dominant component) re-implemented "
+    "with its published defaults (code checked against the pyts SSA algorithm) and applied, untuned, to the superior–inferior "
+    "acceleration within the same reference-assisted segments as B0; only the event-time offset for matching was set on "
+    "development data. Computation: sample-by-sample implementation of B2; one operation = one add, multiply, compare, "
+    "divide or square root, sorting counted as n·log2(n) comparisons (naive implementation, i.e. an upper bound). "
+    "All analyses were added after the V16 draft and are post hoc."))
 ITEMS["T:ext_audit"] = (S_PIPE, T(
     "Suitability Audit of the DUO-GAIT Files Used for External Validation",
     ["Requirement", "Finding on the files", "Verdict"],

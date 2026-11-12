@@ -50,15 +50,15 @@ Windows: double-click the `.cmd` files in this order. Linux/macOS: the `.sh` equ
 | 1 | `run_v16_pack.cmd` → `pack_v16.py --data ..\dataset_extracted --results ..\results_v11 --out ..\v16_data` | `v16_data/voisard_head_pack.npz` (1351 trials) |
 | 2 | (browser) download `processed.zip`, `interim.zip` to `..\external\duogait\` | — |
 | 3 | `run_v16_prep3.cmd` → `prep3_v16.py` | `v16_data/duogait_head_<condition>.npz` |
-| 4 | `run_v16_all.cmd` (or `bash run_v16_all.sh`) | `results_v16/{e2e,trust,ext,sens,figures}` |
+| 4 | `run_v16_all.cmd` (or `bash run_v16_all.sh`) | `results_v16/{e2e,trust,ext,sens,post,figures}` |
 
 `run_v16_all` runs, in order: `prep4_merge_duogait.py` → `run_v16_endtoend.py` (B0 re-run + B1/B2, development
 tuning) → `run_v16_b2tune.py` → `run_v16_b2t_eval.py` → `analysis/v16_endtoend_stats.py` →
 `analysis/v16_gyro_offset.py` → `run_v16_trust.py` → `analysis/v16_trust_extra.py` → `run_v16_external.py` →
-`analysis/v16_external_stats.py` → `run_v16_sensitivity.py` → `analysis/v15_text_numbers.py` →
+`analysis/v16_external_stats.py` → `run_v16_sensitivity.py` → post hoc block (`analysis/v16_post_gyrocal.py` × 4: `--set dev|test --window head|ref`; `analysis/v16_post_gyrocal_rule.py` with and without `--window ref`; `analysis/v16_post_stats.py R11 E2E TRUST EXT POST`; `analysis/v16_post_eargait.py PACK R11 E2E POST`; `analysis/v16_post_compute.py PACK R11 E2E POST --n 930`; `analysis/v16_post_clinical.py R11 E2E POST`) → `analysis/v15_text_numbers.py` →
 `figures_results/make_figs_v16.py`. Run time on a 2-core machine: see Section 6.
 
-Manuscript: `cd ieee; python build_jsen.py main OUT.docx --bios; python build_jsen.py supp OUT.docx` (`content_en.py` =
+Manuscript: `cd ieee; python build_jsen.py main OUT.docx [--bios]; python build_jsen.py supp OUT.docx` (`content_en.py` =
 `refs_part.py` + `body_v16.py`; `content_supp.py` builds the supplement from the result files and numbers its items
 by first mention in the main text).
 
@@ -72,6 +72,7 @@ To compare a re-run with the delivered results: `python analysis/compare_results
 | `trust` | `trust_segments_features.csv` (10 features per segment, development + test), `trust_models.json`, `trust_test_scored.csv`, `trust_summary.json`, `trust_extra.json`, `error_coverage_curve.csv`, `trust_operating_points.csv` |
 | `ext` | `duogait_head.npz`, `duogait_head_audit.csv`, `external_passes.csv` (per pass: reference and head cadence for B0/B1/B2, SR, risk flags), `external_walks.csv` (detection per walk), `external_stats.json` |
 | `sens` | `sensitivity_rows.csv` (per trial × perturbation), `sensitivity_summary.csv` |
+| `post` | `gyrocal_segments_{dev,test}[_ref].csv`, `gyrocal_trials_{dev,test}[_ref].csv` (per trial: estimated offset `cal_offset_dps`), `gyrocal_summary.json`, `gyrocal_rule.json` (head-only still window), `gyrocal_rule_ref.json` (known still period), `post_stats.json` (calibration CIs, TOST, threshold sensitivity), `eargait_segments.csv`, `eargait_events.csv`, `eargait_summary.json`, `compute_summary.json`, `clinical_summary.json` — Supplementary Table S6 |
 | `figures` | `fig10_endtoend`, `fig11_trust`, `figS_external_ba` (.png/.pdf) |
 
 ## 6. Verification of this package (fresh re-run, 2026-10-23)
@@ -92,3 +93,9 @@ Run time: about 30 min on 2 CPU cores (end-to-end ≈ 5 min, trust models with b
 sensitivity ≈ 3 min). Two steps that were first done interactively — merging the DUO-GAIT head files with their signal
 audit, and the gyroscope-offset failure analysis — are now scripts (`prep4_merge_duogait.py`,
 `analysis/v16_gyro_offset.py`) and reproduce the delivered files exactly.
+
+## 7. Post hoc additions (2026-10-27)
+
+The post hoc scripts were run in this environment with seeds 20261023 (bootstrap, 2000 resamples; 500 for AUROC CIs). Outputs are in `results_v16/post/`; every number quoted in the manuscript and Supplementary Table S6 is read from `post_stats.json`, `gyrocal_rule.json` and `gyrocal_rule_ref.json`.
+
+Second batch (EarGait comparator, computational cost, clinical scale) run the same day; `tests/check_eargait_ssa_vs_pyts.py PYTS_CLONE` checks the SSA re-implementation. Run-time numbers in `compute_summary.json` are machine-dependent (they are the only outputs that will not reproduce exactly).

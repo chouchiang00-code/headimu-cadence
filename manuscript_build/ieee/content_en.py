@@ -17,7 +17,7 @@ exec(compile((_HERE / "body_v16.py").read_text(encoding="utf-8"), "body_v16.py",
 
 import content_supp as _S  # noqa: E402
 
-GRAPHICAL_ABSTRACT = "fig_v16/graphical_abstract_v16.png"
+GRAPHICAL_ABSTRACT = "fig_v16/graphical_abstract_compact.png"
 
 
 def _res(x):

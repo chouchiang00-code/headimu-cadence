@@ -493,7 +493,7 @@ def biographies():
     """Author biographies as in the template (photo 1 in x 1.25 in at the left, name in bold IEEE blue); placeholders.
     A borderless two-cell table keeps photo and text together in both Word and LibreOffice."""
     para(style="Text")
-    for name in ("Qiu Qiang", "Chen Shiqi", "Jin Zhenkun"):
+    for name in ("Qiang Qiu", "Shiqi Chen", "Zhenkun Jin"):
         t = doc.add_table(rows=1, cols=2)
         t.autofit = False
         tblPr = t._tbl.tblPr
@@ -544,7 +544,7 @@ if MODE == "main":
     tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:val="clear" w:color="auto" w:fill="{BOXFILL}"/>'))
     tcPr.append(parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="40" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/></w:tcMar>'))
     ap = mid.paragraphs[0]; ap.style = doc.styles["Abstract"]
-    anchor_picture(ap.add_run(), ROOT / getattr(C, "GRAPHICAL_ABSTRACT", "fig_ieee/graphical_abstract.png"), 2.75,
+    anchor_picture(ap.add_run(), ROOT / getattr(C, "GRAPHICAL_ABSTRACT", "fig_ieee/graphical_abstract.png"), float(__import__("os").environ.get("GA_W", "3.1")),
                    align="right", rel="column", wrap="square", dist=(0, 50800, 114300, 0), pos_v=50800)
     add_runs(ap, "*Abstract*", color=TEAL); add_runs(ap, "—", color=TEAL)
     add_runs(ap, C.ABSTRACT)
@@ -590,7 +590,7 @@ if MODE == "main":
     if "--bios" in sys.argv:
         biographies()
     doc.add_section(WD_SECTION.CONTINUOUS); set_cols(doc.sections[-1], 2)
-    running_heads("Qiu Qiang *et al.*: Cadence From a Single Head-Worn IMU Across Clinical Cohorts")
+    running_heads("Q. Qiu *et al.*: Cadence From a Single Head-Worn IMU Across Clinical Cohorts")
 else:
     # supplementary material: single column, same typography, teal labels and running head
     add_runs(para(style="Title"), "Supplementary Material")

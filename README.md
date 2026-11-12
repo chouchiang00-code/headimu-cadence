@@ -1,8 +1,8 @@
 # Head-worn IMU cadence analysis
 
-Code for **“Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Failure Modes, Trustworthiness, and External Validation”**, submitted to *IEEE Sensors Journal*.
+Code for **“Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Trustworthiness, and External Validation”**, submitted to *IEEE Sensors Journal*.
 
-**Authors:** Qiu Qiang, Chen Shiqi, and Jin Zhenkun (corresponding author), School of Artificial Intelligence and Big Data, Wuhan University of Business.
+**Authors:** Qiang Qiu, Shiqi Chen, and Zhenkun Jin (corresponding author), School of Artificial Intelligence and Big Data, Wuhan University of Business.
 
 **Paper link:** [to be added]
 
@@ -14,7 +14,7 @@ This repository contains the reference-assisted and head-only cadence pipelines,
 - `analysis/`: primary-output audits, secondary statistics, failure analyses, and result comparison scripts.
 - `figures_results/`: scripts that generate result figures from locally regenerated outputs.
 - `figures_schematic/`: scripts that draw the sensor and method schematics.
-- `tests/`: a synthetic archive generator for code-path smoke checks; its outputs are not study results.
+- `tests/`: synthetic code-path smoke checks and an SSA comparison against the pyts source kernel.
 - `manuscript_build/`: manuscript build instructions, graphical-abstract script, and supporting figure assets.
 - `manuscript_build/ieee/`: Word manuscript and supplement builders, manuscript text, and references.
 - `manuscript_build/ieee/jsen_assets/`: journal-logo and author-photo placeholder assets supplied with the builders.
@@ -22,6 +22,9 @@ This repository contains the reference-assisted and head-only cadence pipelines,
 - `manuscript_build/fig_results/`: supplied manuscript result-figure assets.
 - `manuscript_build/fig_schematics/`: supplied sensor schematic asset.
 - `manuscript_build/fig_v16/`: supplied V16 manuscript figures and graphical abstract.
+- `manuscript_build/figure_sources/`: editable SVG illustration sources and drawing/rendering scripts.
+- `manuscript_build/vector_figures/`: supplied vector figures; PDFs and two regenerable SVGs above 5 MB are excluded from Git.
+- `third_party/`: upstream licence notices for adapted code.
 
 The repository root contains `run_*.py`, data preparation scripts, `config.json`, and Windows/POSIX launchers. `README_V16.md` preserves the original reproducibility notes. `README_V15.md` and `README_使用说明.md` are historical guides; use the instructions below for this release.
 
@@ -136,6 +139,7 @@ The launcher merges the DUO-GAIT packs, runs head-only estimation and B2-t tunin
 - `../results_v16/trust/`: features, fitted risk models, scored test outputs, summaries, and error/coverage curves.
 - `../results_v16/ext/`: merged DUO-GAIT pack, signal audit, pass/walk outputs, and external statistics.
 - `../results_v16/sens/`: per-trial perturbation rows and sensitivity summaries.
+- `../results_v16/post/`: post hoc calibration/rule outputs, equivalence and threshold sensitivity, the EarGait comparator, streaming/batch computational cost, and clinical-scale summaries (Supplementary Table S6).
 - `../results_v16/figures/`: regenerated V16 result figures.
 
 `run_v16_b2t_eval.py` wraps its unchanged evaluation block in `main()` and calls it only under `if __name__ == "__main__"`, so Windows-spawned workers can import the module without starting the evaluation again. The worker count and all analysis statements are unchanged. This entry-point organization was explicitly approved for the release; smoke checks do not replace full-data reproduction.
@@ -150,6 +154,12 @@ python analysis/sr_screen.py ../results_v11 ../results_v15/sr_screen.json
 ```
 
 Compare a local rerun with an independently retained output folder using `python analysis/compare_results.py REFERENCE_DIR NEW_DIR`. Historical verification claims in `README_V16.md` describe the supplied package's earlier verification, not a new full-data run of this release.
+
+### Updated analysis additions
+
+The `headimu_code_v16_2.zip` update adds the explicitly post hoc analyses documented in Section 7 of `README_V16.md`; the launcher runs them after sensor-sensitivity simulations. The primary `headimu/endtoend.py` algorithm and released configuration are retained. `headimu/stream_b2.py` implements B2 sample by sample; `headimu/eargait_diao.py` re-implements the published EarGait detector with the defaults described in its source. These analyses use the same two datasets and do not require downloading a third dataset. Computation timings are machine-dependent, as noted in `README_V16.md`.
+
+The supplied manuscript now uses the title and author-name order printed at the top of this README. The copyright holders retain their previously supplied names in LICENSE.
 
 ### Fixed seeds and analysis status
 
@@ -190,7 +200,7 @@ The environment variable is needed because the builders' original default looks 
 
 ## Tests and validation scope
 
-`tests/` contains a runnable synthetic archive generator rather than an assertion-based test suite:
+`tests/` contains a runnable synthetic archive generator and an SSA comparison check:
 
 ```sh
 python tests/make_synthetic_archive.py ../SYNTHETIC_TEST_ONLY 5
@@ -198,6 +208,15 @@ python run_pipeline.py inspect --data ../SYNTHETIC_TEST_ONLY --out ../SYNTHETIC_
 ```
 
 Synthetic outputs only exercise code paths and must never be reported as study results. Release checks cover compilation of every Python source, usage/argument handling of all `run_*.py` and `analysis/*.py` scripts, synthetic archive generation/inspection, and Git ignore rules. They do not establish numerical reproduction on the two real datasets.
+
+The additional SSA check uses an external source checkout without adding pyts or scikit-learn to the analysis dependencies:
+
+```sh
+git clone https://github.com/johannfaouzi/pyts.git ../pyts-reference
+python tests/check_eargait_ssa_vs_pyts.py ../pyts-reference
+```
+
+The check executes the pyts SSA kernel with a lightweight numba stub; record the checkout commit when comparing implementations. The editable illustration builders additionally use Pillow and Linux Liberation Sans font paths (`/usr/share/fonts/...`); their JavaScript rendering helpers require Node.js, Playwright, and its Chromium browser. These are optional figure-build requirements.
 
 ## Citation
 
@@ -209,7 +228,7 @@ Complete the publication fields when available. `CITATION.cff` contains the code
 
 ## Licences
 
-The code is licensed under the [MIT License](LICENSE), copyright 2026 Qiu Qiang, Chen Shiqi, and Jin Zhenkun. The datasets follow their original licences and must be obtained from their original records. Voisard data: consult the figshare record for its original licence. **DUO-GAIT data licence: [to be confirmed].** Third-party journal logos remain subject to their owners' rights; the code licence does not grant rights to those marks.
+The EarGait adaptation preserves its upstream copyright notice; the accompanying upstream MIT licence is in `third_party/EarGait-LICENSE`. The remaining code is licensed under the [MIT License](LICENSE), copyright 2026 Qiu Qiang, Chen Shiqi, and Jin Zhenkun. The datasets follow their original licences and must be obtained from their original records. Voisard data: consult the figshare record for its original licence. **DUO-GAIT data licence: [to be confirmed].** Third-party journal logos remain subject to their owners' rights; the code licence does not grant rights to those marks.
 
 ## 中文概述
 

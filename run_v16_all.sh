@@ -18,6 +18,17 @@ $PY analysis/v16_trust_extra.py "$TR"
 $PY run_v16_external.py "$EXT/duogait_head.npz" ../external/duogait/processed.zip "$E2E" "$TR" "$EXT"
 $PY analysis/v16_external_stats.py "$EXT"
 $PY run_v16_sensitivity.py "$PACK" "$R11" "$E2E" "$SENS"
+# post hoc (added after the V16 draft; labelled post hoc in the manuscript, Supplementary Table S6)
+POST=$OUT/post; mkdir -p "$POST"
+for SET in dev test; do for WIN in head ref; do
+  $PY analysis/v16_post_gyrocal.py "$PACK" "$R11" "$E2E" "$POST" --jobs "$JOBS" --set $SET --window $WIN
+done; done
+$PY analysis/v16_post_gyrocal_rule.py "$E2E" "$POST"
+$PY analysis/v16_post_gyrocal_rule.py "$E2E" "$POST" --window ref
+$PY analysis/v16_post_stats.py "$R11" "$E2E" "$TR" "$EXT" "$POST"
+$PY analysis/v16_post_eargait.py "$PACK" "$R11" "$E2E" "$POST" --jobs "$JOBS"
+$PY analysis/v16_post_compute.py "$PACK" "$R11" "$E2E" "$POST" --n 930
+$PY analysis/v16_post_clinical.py "$R11" "$E2E" "$POST"
 $PY analysis/v15_text_numbers.py "$R11"
 $PY figures_results/make_figs_v16.py "$E2E" "$TR" "$OUT/figures" "$R11" "$EXT"
 echo "V16 done: $OUT"
