@@ -1,5 +1,5 @@
 # requirements.lock.txt was absent from the supplied archive.
-# Exact container versions recorded in README_V16.md; approved for this release.
+# Exact container versions from the authors' original V16 notes; approved for this release.
 numpy==2.5.3
 scipy==1.18.1
 pandas==3.0.5

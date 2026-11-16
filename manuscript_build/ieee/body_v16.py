@@ -1,5 +1,4 @@
-TITLE = ("Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Trustworthiness, "
-         "and External Validation")
+TITLE = "Cadence From a Single Forehead IMU in Clinical Cohorts: Comparison With the Lower Back"
 AUTHORS = "Qiang Qiu, Shiqi Chen, and Zhenkun Jin"
 FOOTNOTE = ("[[Manuscript received Month DD, 2026.]] This work was supported by the National Training Program of Innovation "
             "and Entrepreneurship for Undergraduates under Grant 202611654002. (Corresponding author: Zhenkun Jin.)\n\n"

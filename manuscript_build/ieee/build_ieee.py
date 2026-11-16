@@ -415,7 +415,7 @@ else:
         h1("References", numbered=False)
         for i, k in enumerate(ORDER):
             rp = para(indent=0); add_runs(rp, f"[S{i + 1}] " + C.R[k], size=8)
-    header("Supplementary Material — Cadence From a Single Head-Worn IMU")
+    header("Supplementary Material — Forehead IMU Cadence")
 
 ORD = {"tblPr": ["tblStyle", "tblpPr", "tblOverlap", "bidiVisual", "tblStyleRowBandSize", "tblStyleColBandSize", "tblW", "jc",
                  "tblCellSpacing", "tblInd", "tblBorders", "shd", "tblLayout", "tblCellMar", "tblLook", "tblCaption", "tblDescription"],

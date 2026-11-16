@@ -1,6 +1,6 @@
 # Script index
 
-Generated from each script's docstring (first line and `Usage:` line).
+Use README.md for setup and reproduction. This index combines script purposes/usages, the paper-to-code map, and output-file references. Script summaries originate from their docstrings.
 
 
 ## analysis
@@ -168,3 +168,71 @@ Generated from each script's docstring (first line and `Usage:` line).
 - `tests/check_eargait_ssa_vs_pyts.py`: Check headimu.eargait_diao.ssa_components against the SSA kernel of pyts (used by EarGait).  
   `Usage: python tests/check_eargait_ssa_vs_pyts.py PATH_TO_PYTS_CLONE`
 - `tests/make_synthetic_archive.py`: SYNTHETIC data for testing the code paths ONLY. Never use outputs as study results.
+
+
+## 论文内容与脚本的对应
+
+| 论文内容 | 脚本 |
+|---|---|
+| 数据读取、质控、开发集/测试集划分、参考辅助分段下的前额与下背部比较（第 II 节、III-A、IV-A，表 II，图 2） | `run_pipeline.py`、`headimu/`、`analysis/v15_stats.py`、`analysis/v17_cohort_table.py`、`analysis/v17_fig_cis.py` |
+| 四种步频估计器与 AGS 的实现（III-B） | `analysis/v18_methods.py` |
+| 开发集上筛选估计器、冻结记录 | `analysis/v18_extract.py`、`analysis/V18_FREEZE.md` |
+| 测试集一次性评价、单步参考与跨步参考（IV-C，表 III） | `analysis/v18_eval.py`、`analysis/v18_stats.py` |
+| 消融、失效类型分类、性质（1）检验、适用规则 SR ≥ 0.7（IV-B、IV-C、IV-E，图 3、图 4） | `analysis/v18_ext.py`、`analysis/v18_analysis.py`、`analysis/v17_ref_check.py`、`analysis/v17_flag_by_kind.py` |
+| 按 VGA 的筛选代价、跨步参考下的位置差（IV-E） | `analysis/v18_review.py` |
+| 仅头部流程 B1 | `run_v16_endtoend.py`、`analysis/v16_endtoend_stats.py`、`analysis/v18_b1.py` |
+| DUO-GAIT 外部检验 | `run_v16_external.py`、`analysis/v16_external_stats.py`、`analysis/v18_duogait.py` |
+| 采样率与传感器配置仿真（III-D、IV-D，表 IV，图 5） | `analysis/v19_sensor_req.py`、`analysis/v19_sensor_req_paired.py` |
+| mobgap（Mobilise-D）检测器比较 | `analysis/v19_mobgap.py`、`analysis/v19_mobgap_stats.py`（需另装 mobgap 1.2.0） |
+| 头部与下背部信号幅值、传递分析 | `analysis/v17_head_trunk.py`、`analysis/v19_transmission.py`、`analysis/v19_transmission_v17.py`；下背部数据打包用 `pack_v19_lb.py` |
+| 峰值参数、频带敏感性与交叉验证（补充材料） | `analysis/v17_peak_sensitivity.py`、`analysis/v17_band_sensitivity.py`、`analysis/v17_crossval.py` |
+| 安装误差仿真、跨就诊一致性（补充材料） | `run_v16_sensitivity.py`、`run_pipeline.py` |
+| 事后分析（EarGait 检测器、陀螺零偏等，补充材料） | `analysis/v16_post_*.py`、`headimu/eargait_diao.py` |
+| 结果图 | `figures_results/make_figs_v17.py`（图 2）、`make_figs_v18.py`（图 3）、`make_figs_v18b.py`（图 4）、`make_figs_v20.py`（图 5）、`make_figs_v19.py`（补充图） |
+
+## V15 optional feature outputs
+
+Run `run_features.py` and the V15 analysis commands in README.md. Feature definitions remain in `headimu/features.py`; the participant split, band and lag come from the primary outputs.
+
+| 文件 | 内容 |
+|---|---|
+| clinical_meta.csv | 每个试次的 VGA、TUG、专科量表、患侧、性别、身高、体重 |
+| features_segments.csv | 每个直行片段的 9 个头部特征 + 2 个固定轴对照 + 足部参考对应量 |
+| sim_features.csv | 测试集试次在刚性旋转（10–45°，各 10 轴）和杆臂（2/4/8 cm，各 10 方向）下的特征值 |
+| v15_summary.json, v15_tables\*.csv | 效度、试次间信度、安装敏感性、VGA 关联与增量价值、筛查按 VGA 分层 |
+| sr_screen.json, sr_curve.json | 步态规律性筛查（与论文 V14 一致） |
+
+## V16 output-file reference
+
+These locally regenerated outputs are not bundled with the repository.
+
+| Folder | Files |
+|---|---|
+| `e2e` | `b0_segments_all.csv` (B0 re-run, all trials), `endtoend_segments.csv` (per reference segment: B0/B1/B2/B2-t cadence and error), `endtoend_trials.csv` (per trial: walking/turn/step detection, latencies), `dev_tuning_walking.csv`, `dev_tuning_b2t.csv`, `endtoend_params.json`, `b2t_params.json`, `endtoend_stats.json`, `table_endtoend_by_cohort.csv`, `table_endtoend_detection_by_cohort.csv`, `static_gyro_offsets.csv`, `gyro_offset_summary.json` |
+| `trust` | `trust_segments_features.csv` (10 features per segment, development + test), `trust_models.json`, `trust_test_scored.csv`, `trust_summary.json`, `trust_extra.json`, `error_coverage_curve.csv`, `trust_operating_points.csv` |
+| `ext` | `duogait_head.npz`, `duogait_head_audit.csv`, `external_passes.csv` (per pass: reference and head cadence for B0/B1/B2, SR, risk flags), `external_walks.csv` (detection per walk), `external_stats.json` |
+| `sens` | `sensitivity_rows.csv` (per trial × perturbation), `sensitivity_summary.csv` |
+| `post` | `gyrocal_segments_{dev,test}[_ref].csv`, `gyrocal_trials_{dev,test}[_ref].csv` (per trial: estimated offset `cal_offset_dps`), `gyrocal_summary.json`, `gyrocal_rule.json` (head-only still window), `gyrocal_rule_ref.json` (known still period), `post_stats.json` (calibration CIs, TOST, threshold sensitivity), `eargait_segments.csv`, `eargait_events.csv`, `eargait_summary.json`, `compute_summary.json`, `clinical_summary.json` — Supplementary Table S6 |
+| `figures` | `fig10_endtoend`, `fig11_trust`, `figS_external_ba` (.png/.pdf) |
+
+
+## Historical V16 protocol provenance
+
+The following settings are copied from the authors' original V16 reproducibility notes. They describe that earlier analysis and its development-set selections; use `analysis/V18_FREEZE.md` and the versioned source for the newer AGS analysis. Reproduction reruns the released selection rules rather than manually substituting these values.
+
+* **Split**: seed 20261022, 30 % of participants for development, stratified by cohort × sensor system
+  (`run_pipeline.py`, stored in `results_v11/qc_trials.csv`): 77 development / 183 test participants,
+  421 / 930 trials.
+* **Bootstrap / simulation seed**: 20261023 (all V16 scripts); 2000 participant-level resamples.
+* **Development-selected (V11)**: band 0.6–3.0 Hz, head lag 0.07 s (A1), turn gate q* = 30 °/s, SR threshold 0.3188.
+* **Head-only pipeline** (`results_v16/e2e/endtoend_params.json`): band 0.6–3.0 Hz (3rd-order Butterworth),
+  gravity low-pass 0.3 Hz, RMS window 2 s, walking threshold 0.18 m/s² (B1) / 0.20 m/s² (B2, development-selected),
+  gap fill 1 s, bout ≥ 3 s, gate 30 °/s (median 0.15 s, ≥ 0.30 s, pad 0.20 s), merge 0.5 s, turn ≥ 90°, segment ≥ 2 s,
+  ≥ 3 intervals, prominence max(0.12 m/s², 1.5 σ̂), spacing ≥ 0.30 s; causal: hysteresis 0.7, holds 0.5 / 1.0 s,
+  confirmation 0.20 s, trailing-minimum window 0.9 s, running median of 6 intervals; lags 0.07 s (B1), 0.14 s (B2).
+* **B2-t (post hoc)**: confirmation 0.30 s, selected on development data among 20 settings (`b2t_params.json`).
+* **Error-risk models**: ridge logistic, λ = 1, standardized features, fitted on development segments; threshold at the
+  Q1 development flag rate 0.0998 (`results_v16/trust/trust_models.json`).
+* **DUO-GAIT adaptation**: g → m/s² (× 9.80665), °/s → rad/s, polyphase resampling 128 → 100 Hz (up 25, down 32);
+  every other parameter frozen from Voisard. Reference straight passes: both feet have strides that are neither turning
+  nor interrupted.

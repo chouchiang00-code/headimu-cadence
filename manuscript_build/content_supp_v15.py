@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """Supplementary Material (Tables S1–S14, Figs. S1–S5)."""
 R = {}
-TITLE = ("Cadence Estimation From a Single Head-Worn IMU Across Clinical Cohorts: Failure Modes, Mounting Robustness, "
-         "and Data Trustworthiness")
+TITLE = "Cadence From a Single Forehead IMU in Clinical Cohorts: Comparison With the Lower Back"
 FIGPREFIX = "S"
 B = []
 def h1(t): B.append(("h1", t))

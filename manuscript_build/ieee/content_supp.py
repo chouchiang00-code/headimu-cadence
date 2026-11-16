@@ -17,8 +17,7 @@ import os  # noqa: E402
 RES = Path(os.environ["V16_RESULTS"]) if "V16_RESULTS" in os.environ else next(
     (d for d in (HERE.parent / "v16res", HERE.parent / "results_v16") if d.exists()), HERE.parent / "results_v16")
 R = {}
-TITLE = ("Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Failure Modes, "
-         "Trustworthiness, and External Validation")
+TITLE = "Cadence From a Single Forehead IMU in Clinical Cohorts: Comparison With the Lower Back"
 FULL = 10440
 
 

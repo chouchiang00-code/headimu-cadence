@@ -590,7 +590,7 @@ if MODE == "main":
     if "--bios" in sys.argv:
         biographies()
     doc.add_section(WD_SECTION.CONTINUOUS); set_cols(doc.sections[-1], 2)
-    running_heads("Q. Qiu *et al.*: Cadence From a Single Head-Worn IMU Across Clinical Cohorts")
+    running_heads("Q. Qiu *et al.*: Forehead IMU Cadence")
 else:
     # supplementary material: single column, same typography, teal labels and running head
     add_runs(para(style="Title"), "Supplementary Material")
@@ -608,8 +608,8 @@ else:
         elif kind == "table":
             cap, head, rows, widths, note = payload
             table(cap, head, rows, widths, note, prefix="S")
-    running_heads("Supplementary Material — Cadence From a Single Head-Worn IMU", first_logo=False,
-                  copyright_footer=False, even_text="Supplementary Material — Cadence From a Single Head-Worn IMU")
+    running_heads("Supplementary Material — Forehead IMU Cadence", first_logo=False,
+                  copyright_footer=False, even_text="Supplementary Material — Forehead IMU Cadence")
 
 # ================================================================== schema order of property children
 ORD = {"tblPr": ["tblStyle", "tblpPr", "tblOverlap", "bidiVisual", "tblStyleRowBandSize", "tblStyleColBandSize", "tblW", "jc",

@@ -10,7 +10,7 @@ This repository contains the reference-assisted and head-only cadence pipelines,
 
 ## Current V17–V21 code update
 
-The current manuscript title above follows the authors' new package. [README_SOURCE_V21.md](README_SOURCE_V21.md) preserves its overview, [SCRIPTS.md](SCRIPTS.md) lists script purposes and usage, and [代码说明_论文对应表.md](代码说明_论文对应表.md) maps the paper sections, tables and figures to code. Earlier V16 instructions below remain the prerequisite pipeline; the later analyses are run separately using those script arguments.
+Start with this README for setup, data preparation and reproduction. [SCRIPTS.md](SCRIPTS.md) is the script index and includes the Chinese paper-to-code map and detailed output-file reference. Earlier V16 commands below remain the prerequisite pipeline; run the later analyses using the arguments listed in the index. Superseded root-level guides have been consolidated here; their original versions remain in Git history.
 
 The update adds lower-back packing (`pack_v19_lb.py`), reviewer checks and within-development cross-validation, the frozen AGS estimator and head/lower-back comparison, failure/applicability analyses, sensor-requirement simulations, head–trunk transmission measures, and the mobgap comparator. It still uses the same two public datasets. No new results are claimed by this repository-preparation check.
 
@@ -54,7 +54,7 @@ The new builders also expect regenerated V16/V18/V19 results and newer figure as
 - `manuscript_build/vector_figures/`: supplied vector figures; PDFs and two regenerable SVGs above 5 MB are excluded from Git.
 - `third_party/`: upstream licence notices for adapted code.
 
-The repository root contains `run_*.py`, data preparation scripts, `config.json`, and Windows/POSIX launchers. `README_V16.md` preserves the original reproducibility notes. `README_V15.md` and `README_使用说明.md` are historical guides; use the instructions below for this release.
+The repository root contains `run_*.py`, data preparation scripts, `config.json`, Windows/POSIX launchers, and two documentation entry points: this README and SCRIPTS.md. Version-specific source records such as `analysis/V18_FREEZE.md` remain beside their code.
 
 ## Environment
 
@@ -82,7 +82,7 @@ Then install the analysis dependencies:
 pip install -r requirements.txt
 ```
 
-The supplied archive did not contain the `requirements.lock.txt` mentioned in `README_V16.md`. With approval for this release, `requirements.txt` pins the exact container versions explicitly recorded there: numpy 2.5.3, scipy 1.18.1, pandas 3.0.5, and matplotlib 3.11.2. There is no scikit-learn dependency. These pins have been checked on Python 3.12.14; Python 3.11 cannot install the pinned NumPy/SciPy distributions, and other platforms have not been tested for this release.
+The original V16 notes referred to a `requirements.lock.txt` that was absent from the supplied archive. With approval for this release, `requirements.txt` pins the exact container versions recorded in those notes: numpy 2.5.3, scipy 1.18.1, pandas 3.0.5, and matplotlib 3.11.2. The core requirements do not include scikit-learn; the optional V17 regression analyses described above require it separately. These pins have been checked on Python 3.12.14; Python 3.11 cannot install the pinned NumPy/SciPy distributions, and other platforms have not been tested for this release.
 
 Building the optional Word manuscripts additionally requires the source-documented dependency:
 
@@ -95,7 +95,14 @@ pip install python-docx==1.2.0
 - **Voisard et al. (2025):** [figshare, doi:10.6084/m9.figshare.28806086](https://doi.org/10.6084/m9.figshare.28806086). Download the complete `dataset.zip` archive used in the original guide. The analysis uses processed HE/LB/foot signals, raw sensor files for validity/QC, heel strikes, turn boundaries, and clinical metadata. `extract_needed.py` extracts the required files while preserving archive paths.
 - **DUO-GAIT (Zhou et al., 2023):** [Zenodo, doi:10.5281/zenodo.8244887](https://doi.org/10.5281/zenodo.8244887). Download **`processed.zip` and `interim.zip`** from this record. Keep the archives unchanged. The local preparation route below does not require `raw.zip`. The original notes recommend browser downloads after scripted requests returned HTTP 403.
 
-The unchanged `run_v16_all.sh` and `.cmd` launchers read and write sibling directories. Arrange local files as follows:
+The authors' original notes record these MD5 checksums for their DUO-GAIT version 3 downloads (not newly recalculated for this release):
+
+| Archive | Recorded MD5 |
+|---|---|
+| `processed.zip` | `59262239edaab480115ee5dd553587ee` |
+| `interim.zip` | `de9ffa7ed1d9ea91e0b6b2e3af5ecda1` |
+
+The `run_v16_all.sh` and `.cmd` launchers read and write sibling directories. Arrange local files as follows:
 
 ```text
 work/
@@ -130,6 +137,8 @@ python run_pipeline.py run --data ../dataset_extracted --out ../results_v11 --jo
 ```
 
 Extraction writes the required trial files to `../dataset_extracted/`. Inspection writes QC tables, a report, and example plots to `../results_v11_inspect/`. The full primary run writes the participant split and QC table (`qc_trials.csv`), `config_used.json`, `dev_calibration.json`, trial/segment outputs, simulation outputs, tables, and figures to `../results_v11/`. These outputs are inputs to V16; they are not bundled with the code.
+
+The providers' processed signals supply the harmonized coordinate frame: head/lower-back X is craniocaudal. Raw files retain sensor coordinates and are used for packet gaps and signal-level QC. Keep `config.json` at `io.signal_source="processed"`; accelerations are m/s², angular rates are rad/s, and gait-event metadata pairs are [toe-off, heel-strike] sample indices. Review the inspection report/plots for format, units and event alignment before the full run; changing analysis parameters is not part of reproduction.
 
 ### 1. Pack the Voisard signals
 
@@ -181,19 +190,23 @@ python analysis/v15_extra.py ../results_v11 ../results_v15
 python analysis/sr_screen.py ../results_v11 ../results_v15/sr_screen.json
 ```
 
-Compare a local rerun with an independently retained output folder using `python analysis/compare_results.py REFERENCE_DIR NEW_DIR`. Historical verification claims in `README_V16.md` describe the supplied package's earlier verification, not a new full-data run of this release.
+Compare a local rerun with an independently retained output folder using `python analysis/compare_results.py REFERENCE_DIR NEW_DIR`. The original V16 notes report a full-data rerun on 2026-10-23 and comparison of the delivered V16 tables/statistics and figures with a numeric tolerance of 1 × 10⁻⁹. This is historical provenance, not a new full-data run of the current submission snapshot. Detailed output names are listed in SCRIPTS.md.
 
 ### Updated analysis additions
 
-The `headimu_code_v16_2.zip` update adds the explicitly post hoc analyses documented in Section 7 of `README_V16.md`; the launcher runs them after sensor-sensitivity simulations. The primary `headimu/endtoend.py` algorithm and released configuration are retained. `headimu/stream_b2.py` implements B2 sample by sample; `headimu/eargait_diao.py` re-implements the published EarGait detector with the defaults described in its source. These analyses use the same two datasets and do not require downloading a third dataset. Computation timings are machine-dependent, as noted in `README_V16.md`.
+The V16 post hoc additions comprise offset calibration and development-selected correction rules, equivalence and threshold sensitivity, the EarGait comparator, computational cost, and clinical-scale summaries; the launcher runs them after sensor-sensitivity simulations. The primary `headimu/endtoend.py` algorithm and released configuration are retained. `headimu/stream_b2.py` implements B2 sample by sample; `headimu/eargait_diao.py` re-implements the published EarGait detector with the defaults described in its source. These analyses use the same two datasets and do not require downloading a third dataset. Computation timings are machine-dependent.
 
 The supplied manuscript now uses the title and author-name order printed at the top of this README. The copyright holders retain their previously supplied names in LICENSE.
 
+### Disclosed V16 deviations
+
+The original notes disclose three details: the first development grid for the walking threshold (0.2–1.8 m/s²) selected its lower edge and was extended downward before test evaluation; B2-t was selected after the first test evaluation and is post hoc; Q1 AUROC used the 1858 segments with a defined trial step regularity. These disclosures concern the V16 analyses and do not change the current analysis-status paragraph below.
+
 ### Fixed seeds and analysis status
 
-Participant split: **20261022**. Bootstrap and simulation: **20261023**, as documented for V16 in `README_V16.md`. No source seeds, parameters, or thresholds have been changed in this release. Older scripts retain their original seed values.
+Participant split: **20261022**. Bootstrap and simulation: **20261023**, as recorded in the original V16 reproducibility notes. No source seeds, parameters, or thresholds have been changed in this release. Older scripts retain their original seed values.
 
-The following wording is copied unchanged from `README_V16.md`:
+The original V16 reproducibility notes stated:
 
 > No parameter
 > was set by hand after looking at test or external results, except where labelled post hoc (B2-t).
@@ -202,9 +215,13 @@ The following current analysis-status wording is copied verbatim from the newly 
 
 > Analysis status: the reference-assisted head versus lower-back comparison (B0) and the mounting simulations are prespecified; the AGS estimator was designed and frozen on the development set and evaluated once on the test set (its stride-reference analysis was listed in the freeze record); the head-only pipelines (B1, B2), the sensor-sensitivity simulations, and the early screening rules are exploratory, B2-t is post hoc; the ablation, failure mechanisms, and the segment-level rule are post hoc (rule threshold chosen on development data); the open-source Mobilise-D baseline, the head-trunk transmission measures, and the sensor-requirement simulations were run after the freeze with nothing re-tuned (post hoc); DUO-GAIT results are a frozen external check. Simulation results describe recorded signals with synthetic perturbations, not real re-wearing.
 
+### Submission snapshot
+
+The annotated Git tag `v1.0-submission` identifies this code snapshot for the IEEE Sensors Journal submission. It records repository code and documentation, not bundled datasets or a newly validated manuscript build.
+
 ### Optional manuscript build
 
-The manuscript scripts and their supplied PNG/JPEG assets are in `manuscript_build/`. Word and PDF files are excluded. Supplied figure assets are retained for the manuscript build; regenerate result figures from the public data when reproducing the analyses.
+The manuscript scripts and their supplied PNG/JPEG assets are in `manuscript_build/`. Their full paper titles and shortened running heads are aligned with the current title. Versioned filenames and historical scientific content are retained; title alignment does not make an older draft the final submitted manuscript. Word and PDF files are excluded. Supplied figure assets are retained for the manuscript build; regenerate result figures from the public data when reproducing the analyses.
 
 After regenerating V16 outputs, set `V16_RESULTS` to their location, then build from `manuscript_build/ieee/`. For Linux/macOS:
 

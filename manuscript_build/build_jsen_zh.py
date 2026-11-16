@@ -625,8 +625,8 @@ else:
         elif kind == "table":
             cap, head, rows, widths, note = payload
             table(cap, head, rows, widths, note, prefix="S")
-    running_heads("Supplementary Material — Cadence From a Single Head-Worn IMU", first_logo=False,
-                  copyright_footer=False, even_text="Supplementary Material — Cadence From a Single Head-Worn IMU")
+    running_heads("Supplementary Material — Forehead IMU Cadence", first_logo=False,
+                  copyright_footer=False, even_text="Supplementary Material — Forehead IMU Cadence")
 
 # ================================================================== schema order of property children
 ORD = {"tblPr": ["tblStyle", "tblpPr", "tblOverlap", "bidiVisual", "tblStyleRowBandSize", "tblStyleColBandSize", "tblW", "jc",

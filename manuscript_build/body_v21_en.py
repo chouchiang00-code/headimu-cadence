@@ -1,7 +1,6 @@
-TITLE = ("Cadence Estimation From a Single Forehead IMU in Clinical Gait: Site Comparison, Failure Analysis, and "
-         "Stride-Based Statistics")
+TITLE = "Cadence From a Single Forehead IMU in Clinical Cohorts: Comparison With the Lower Back"
 AUTHORS = "Qiang Qiu, Shiqi Chen, and Zhenkun Jin"
-RUNNING = "Q. Qiu *et al.*: Cadence Estimation From a Single Forehead IMU in Clinical Gait"
+RUNNING = "Q. Qiu *et al.*: Forehead IMU Cadence"
 GA_PATH = "fig_v17/graphical_abstract_v17.png"
 FOOTNOTE = ("[[Manuscript received Month DD, 2026.]] This work was supported by the National Training Program of Innovation "
             "and Entrepreneurship for Undergraduates under Grant 202611654002. (Corresponding author: Zhenkun Jin.)\n\n"
