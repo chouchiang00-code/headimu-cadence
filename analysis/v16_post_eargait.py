@@ -11,6 +11,8 @@ nearest reference heel strike (|offset| <= 0.4 s) over DEVELOPMENT trials, as fo
 Outputs: OUT_DIR/eargait_segments.csv (dev + test), eargait_events.csv, eargait_summary.json (test-set statistics with
 participant-level bootstrap, paired against B0 head A1, seed 20261023).
 """
+# V16.3 bootstrap fix: each resampled participant gets a unique label (assign(participant=j)), so a participant
+# drawn twice is not merged by a later groupby('participant'); before the fix participant-level CIs were too narrow.
 import json
 import sys
 from concurrent.futures import ProcessPoolExecutor
@@ -107,7 +109,7 @@ def main():
         return float(x.median())
 
     def boot(fn):
-        v = [fn(pd.concat([groups[p] for p in rng.choice(parts, len(parts))], ignore_index=True)) for _ in range(B)]
+        v = [fn(pd.concat([groups[p].assign(participant=j) for j, p in enumerate(rng.choice(parts, len(parts)))], ignore_index=True)) for _ in range(B)]
         return [round(float(x), 3) for x in np.nanpercentile(v, [2.5, 97.5])]
 
     both = m[np.isfinite(m["EG_e"]) & np.isfinite(m["B0_e"])]
@@ -133,7 +135,7 @@ def main():
         a = d.assign(x=d["EG_e"].abs(), y=d["B0_e"].abs()).groupby("participant")[["x", "y"]].median()
         lm = lambda c: 100 * ((~np.isfinite(d[c])) | (d[c].abs() > 5)).mean()
         return a["x"].median() - a["y"].median(), lm("EG_e") - lm("B0_e")
-    bs = np.array([dpair(pd.concat([groups[p] for p in rng.choice(parts, len(parts))], ignore_index=True)) for _ in range(B)])
+    bs = np.array([dpair(pd.concat([groups[p].assign(participant=j) for j, p in enumerate(rng.choice(parts, len(parts)))], ignore_index=True)) for _ in range(B)])
     pt = dpair(m)
     summ["diff_median_abs_err"] = round(float(pt[0]), 3)
     summ["diff_median_abs_err_ci"] = [round(float(x), 3) for x in np.percentile(bs[:, 0], [2.5, 97.5])]
@@ -157,15 +159,10 @@ def main():
     print(json.dumps(summ, indent=1))
 
 
-# Command-line diagnostics only; analysis statements are unchanged.
-if __name__ == "__main__":
-    if "--help" in sys.argv[1:] or "-h" in sys.argv[1:]:
-        print('Usage: python analysis/v16_post_eargait.py PACK.npz RESULTS_V11 E2E_DIR OUT_DIR [--jobs N]')
-        raise SystemExit(0)
-    if len(sys.argv) < 5:
-        print('Usage: python analysis/v16_post_eargait.py PACK.npz RESULTS_V11 E2E_DIR OUT_DIR [--jobs N]', file=sys.stderr)
-        raise SystemExit(2)
-
+# Command-line diagnostics only; analysis statements remain unchanged.
+if __name__ == "__main__" and (len(sys.argv) == 1 or "--help" in sys.argv[1:] or "-h" in sys.argv[1:]):
+    print('Usage: python v16_post_eargait.py PACK.npz RESULTS_V11 E2E_DIR OUT_DIR [--jobs N]')
+    raise SystemExit(0 if "--help" in sys.argv[1:] or "-h" in sys.argv[1:] else 2)
 
 if __name__ == "__main__":
     main()

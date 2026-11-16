@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "Please cite the associated paper when using this software; publication details are to be added."
-title: "Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Trustworthiness, and External Validation"
+title: "Cadence Estimation From a Single Forehead IMU in Clinical Gait: Site Comparison, Failure Analysis, and Stride-Based Statistics"
 authors:
   - family-names: Qiu
     given-names: Qiang

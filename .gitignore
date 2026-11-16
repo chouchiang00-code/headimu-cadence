@@ -23,3 +23,9 @@ __pycache__/
 # Regenerable vector exports larger than 5 MB (retained in the source ZIP)
 /manuscript_build/vector_figures/main/Fig2_bland_altman.svg
 /manuscript_build/vector_figures/supplementary/FigS3_signal_verification.svg
+
+# Newer analysis extracts and regenerable output folders
+*.pkl
+results_*/
+/v18/
+/v19/

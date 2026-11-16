@@ -1,5 +1,7 @@
 """Statistics for the frozen DUO-GAIT external validation. Unit of analysis: participant (16); passes nested in walks
 nested in participants. Usage: python v16_external_stats.py EXT_DIR"""
+# V16.3 bootstrap fix: each resampled participant gets a unique label (assign(participant=j)), so a participant
+# drawn twice is not merged by a later groupby('participant'); before the fix participant-level CIs were too narrow.
 import json
 import sys
 from pathlib import Path
@@ -12,15 +14,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from headimu.stats import bland_altman_repeated  # noqa: E402
 from run_v16_trust import auc, auprc, keep_by_risk  # noqa: E402
 
-# Command-line usage; valid analysis invocations are unchanged.
-if __name__ == "__main__":
-    if "--help" in sys.argv[1:] or "-h" in sys.argv[1:]:
-        print('Usage: python analysis/v16_external_stats.py EXT_DIR')
-        raise SystemExit(0)
-    if len(sys.argv) < 2:
-        print('Usage: python analysis/v16_external_stats.py EXT_DIR', file=sys.stderr)
-        raise SystemExit(2)
-
+# Command-line diagnostics only; analysis statements remain unchanged.
+if __name__ == "__main__" and (len(sys.argv) == 1 or "--help" in sys.argv[1:] or "-h" in sys.argv[1:]):
+    print('Usage: python v16_external_stats.py EXT_DIR')
+    raise SystemExit(0 if "--help" in sys.argv[1:] or "-h" in sys.argv[1:] else 2)
 
 D = Path(sys.argv[1])
 S = pd.read_csv(D / "external_passes.csv")
@@ -36,7 +33,7 @@ def pboot(df, fn):
     ids = df["participant"].unique(); g = {k: v for k, v in df.groupby("participant")}
     v = []
     for _ in range(B):
-        bs = pd.concat([g[i] for i in rng.choice(ids, len(ids))], ignore_index=True)
+        bs = pd.concat([g[i].assign(participant=j) for j, i in enumerate(rng.choice(ids, len(ids)))], ignore_index=True)
         r = fn(bs)
         if np.isfinite(r):
             v.append(r)

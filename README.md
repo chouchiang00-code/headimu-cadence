@@ -1,12 +1,40 @@
 # Head-worn IMU cadence analysis
 
-Code for **“Cadence From a Single Head-Worn IMU Across Clinical Cohorts: Head-Only Estimation, Trustworthiness, and External Validation”**, submitted to *IEEE Sensors Journal*.
+Code for **“Cadence Estimation From a Single Forehead IMU in Clinical Gait: Site Comparison, Failure Analysis, and Stride-Based Statistics”**, submitted to *IEEE Sensors Journal*.
 
 **Authors:** Qiang Qiu, Shiqi Chen, and Zhenkun Jin (corresponding author), School of Artificial Intelligence and Big Data, Wuhan University of Business.
 
 **Paper link:** [to be added]
 
 This repository contains the reference-assisted and head-only cadence pipelines, failure analyses, trustworthiness analyses, external validation, and simulations used for the paper. The analyses use the public Voisard dataset and DUO-GAIT, with participant-level development/test separation and development-selected parameters. The code evaluates walking, turning, and step detection, examines cadence error and error-risk screening, and applies the frozen pipeline to the external dataset. Synthetic perturbations assess mounting and sensor sensitivity. The data must be downloaded separately; neither dataset is included here.
+
+## Current V17–V21 code update
+
+The current manuscript title above follows the authors' new package. [README_SOURCE_V21.md](README_SOURCE_V21.md) preserves its overview, [SCRIPTS.md](SCRIPTS.md) lists script purposes and usage, and [代码说明_论文对应表.md](代码说明_论文对应表.md) maps the paper sections, tables and figures to code. Earlier V16 instructions below remain the prerequisite pipeline; the later analyses are run separately using those script arguments.
+
+The update adds lower-back packing (`pack_v19_lb.py`), reviewer checks and within-development cross-validation, the frozen AGS estimator and head/lower-back comparison, failure/applicability analyses, sensor-requirement simulations, head–trunk transmission measures, and the mobgap comparator. It still uses the same two public datasets. No new results are claimed by this repository-preparation check.
+
+`analysis/v18_methods.py` is a pure library module and is preserved byte-for-byte: SHA256 `64f4b2d92925db9944ef7b36f8d814e5be2ed5871ad3022b6e62877dc478ef4a`, matching [analysis/V18_FREEZE.md](analysis/V18_FREEZE.md). Import it as `from analysis import v18_methods`; it is not a command-line program. All source parameters and seeds, including newer script-specific seeds such as the documented cross-validation seed 20261112, are retained.
+
+After preparing the original data and primary outputs, pack the lower-back signals with:
+
+```sh
+python pack_v19_lb.py --data ../dataset_extracted --results ../results_v11 --out ../v16_data
+```
+
+Output: `../v16_data/voisard_lb_pack.npz`. Use the V17–V19 commands and output paths documented in `SCRIPTS.md`; `run_v16_all.sh`/`.cmd` now additionally run the supplied drift/rate and B-pipeline checks, but do not automatically run every newer analysis.
+
+### Additional environments
+
+The four pinned core requirements are retained. The authors' new `analysis/v17_head_trunk.py` and `analysis/v17_review2.py` additionally use scikit-learn's `LogisticRegression`. These two analyses require a separate environment with scikit-learn; their supplied fitting code is retained, and scikit-learn is not added to the core requirements. The source package does not state a scikit-learn version, so record the version when reproducing those analyses.
+
+`analysis/v19_mobgap.py` additionally requires **mobgap==1.2.0**, installed in its own environment as specified by the authors. Its extra dependencies are separate from the four-package analysis environment. No optional package is needed to display the comparator's command-line usage. CLI checks do not constitute running these optional comparisons on the real datasets.
+
+### New manuscript sources
+
+The supplied root-level `manuscript_build/` scripts are reference typesetting sources: the authors state that the submitted text was edited afterwards. To select the supplied new bodies, set `BODY_EN=body_v21_en.py` or `BODY_ZH=body_v20_zh.py` and set `SUPP_BODY` to the matching body file. Existing `manuscript_build/ieee/` sources are retained for the earlier V16 layout.
+
+The new builders also expect regenerated V16/V18/V19 results and newer figure assets. Their original defaults reference absent old body names, root `v18/` and `v19/` result folders, a `manuscript_build/jsen_assets/` logo folder and repository-root `fig_*/` folders. These are not all supplied by the code-only ZIP; the older supplied assets have a different layout. The source paths are preserved and listed in the local update report rather than silently substituting a different manuscript or figure. Compilation checks cover Python syntax, not a completed Word manuscript build.
 
 ## Repository layout
 
@@ -170,9 +198,9 @@ The following wording is copied unchanged from `README_V16.md`:
 > No parameter
 > was set by hand after looking at test or external results, except where labelled post hoc (B2-t).
 
-`README_V16.md` does not contain a complete status list. With author approval, the following complete status wording is copied verbatim from `manuscript_build/ieee/content_supp.py`:
+The following current analysis-status wording is copied verbatim from the newly supplied `manuscript_build/content_supp.py` (earlier V16 status notes are historical):
 
-> Analysis status: the reference-assisted analysis (B0) and the mounting simulations are prespecified; head features beyond cadence are secondary; the step-regularity screen is post hoc; the head-only pipelines (B1, B2), the sensor-sensitivity simulations, and the error-risk models (Q2) are exploratory, B2-t is post hoc; DUO-GAIT results are a frozen external validation. Simulation results describe recorded signals with synthetic perturbations, not real re-wearing.
+> Analysis status: the reference-assisted head versus lower-back comparison (B0) and the mounting simulations are prespecified; the AGS estimator was designed and frozen on the development set and evaluated once on the test set (its stride-reference analysis was listed in the freeze record); the head-only pipelines (B1, B2), the sensor-sensitivity simulations, and the early screening rules are exploratory, B2-t is post hoc; the ablation, failure mechanisms, and the segment-level rule are post hoc (rule threshold chosen on development data); the open-source Mobilise-D baseline, the head-trunk transmission measures, and the sensor-requirement simulations were run after the freeze with nothing re-tuned (post hoc); DUO-GAIT results are a frozen external check. Simulation results describe recorded signals with synthetic perturbations, not real re-wearing.
 
 ### Optional manuscript build
 

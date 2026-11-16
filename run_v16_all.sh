@@ -29,6 +29,8 @@ $PY analysis/v16_post_stats.py "$R11" "$E2E" "$TR" "$EXT" "$POST"
 $PY analysis/v16_post_eargait.py "$PACK" "$R11" "$E2E" "$POST" --jobs "$JOBS"
 $PY analysis/v16_post_compute.py "$PACK" "$R11" "$E2E" "$POST" --n 930
 $PY analysis/v16_post_clinical.py "$R11" "$E2E" "$POST"
+$PY analysis/v16_post_drift_rate.py "$PACK" "$R11" "$E2E" "$POST/drift_rate"
+$PY analysis/v16_post_b_checks.py "$PACK" "$R11" "$E2E" "$EXT/duogait_head.npz" ../external/duogait/processed.zip "$SENS/sensitivity_rows.csv" "$POST/b_checks" --jobs "$JOBS"
 $PY analysis/v15_text_numbers.py "$R11"
 $PY figures_results/make_figs_v16.py "$E2E" "$TR" "$OUT/figures" "$R11" "$EXT"
 echo "V16 done: $OUT"
