@@ -1,6 +1,6 @@
 # Head-worn IMU cadence analysis
 
-Code for **“Cadence Estimation From a Single Forehead IMU in Clinical Gait: Site Comparison, Failure Analysis, and Stride-Based Statistics”**, submitted to *IEEE Sensors Journal*.
+Code for **“Cadence From a Single Forehead IMU in Clinical Cohorts: Comparison With the Lower Back”**, submitted to *IEEE Sensors Journal*.
 
 **Authors:** Qiang Qiu, Shiqi Chen, and Zhenkun Jin (corresponding author), School of Artificial Intelligence and Big Data, Wuhan University of Business.
 
